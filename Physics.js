@@ -1,6 +1,7 @@
 import Matter from "matter-js";
 import Bullet from "./components/Bullet";
-import { Box } from "./components/Box";
+import { configureBullet } from "./lib/configure-bullet";
+import { Enemy } from "./components/Enemy";
 
 let bulletIds = 0;
 let enemyIds = 0;
@@ -9,25 +10,24 @@ var currentCollisionId;
 const Physics = (entities, { touches, dispatch, events, time }) => {
   let engine = entities.physics.engine;
 
-  const shootBullet = (
-    world,
-    color,
-    pos,
-    size,
-    bulletVelocity,
-    extraOptions
-  ) => {
+  const shootBullet = (world, color, pos, size, bulletVelocity) => {
+    let bulletLabel = `Bullet${++bulletIds}`;
     const bullet = Matter.Bodies.rectangle(
       pos.x,
       pos.y,
       size.width,
       size.height,
-      extraOptions
+      {
+        label: bulletLabel,
+        restitution: 0,
+        friction: 0,
+        frictionAir: 0,
+      }
     );
 
     Matter.Composite.add(world, [bullet]);
 
-    entities[`Bullet${++bulletIds}`] = {
+    entities[bulletLabel] = {
       body: bullet,
       color,
       pos,
@@ -39,22 +39,26 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
   };
 
   const spawnEnemy = (world, color, pos, size, extraOptions) => {
+    let enemyLabel = `Enemy${++enemyIds}`;
     const enemy = Matter.Bodies.rectangle(
       pos.x,
       pos.y,
       size.width,
       size.height,
-      extraOptions
+      {
+        label: enemyLabel,
+        isStatic: false,
+      }
     );
 
     Matter.Composite.add(world, [enemy]);
 
-    entities[`Enemy${++enemyIds}`] = {
+    entities[enemyLabel] = {
       body: enemy,
       color,
       pos,
       size,
-      renderer: <Box />,
+      renderer: <Enemy />,
     };
   };
 
@@ -77,60 +81,18 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
         Matter.Body.setVelocity(entities.Player.body, { x: 0, y: 0 });
       }
       if (events[i].type === "shoot") {
-        let bulletDirection;
-        let bulletPosition;
-        let shootingPosition = entities.Player.body.position;
-
-        switch (events[i].lastDirection) {
-          case "left":
-            bulletDirection = { x: -10, y: 0 };
-            bulletPosition = {
-              x: shootingPosition.x - 20,
-              y: shootingPosition.y,
-            };
-            break;
-
-          case "right":
-            bulletDirection = { x: 10, y: 0 };
-            bulletPosition = {
-              x: shootingPosition.x + 20,
-              y: shootingPosition.y,
-            };
-            break;
-
-          case "up":
-            bulletDirection = { x: 0, y: -10 };
-            bulletPosition = {
-              x: shootingPosition.x,
-              y: shootingPosition.y - 20,
-            };
-            break;
-
-          case "down":
-            bulletDirection = { x: 0, y: 10 };
-            bulletPosition = {
-              x: shootingPosition.x,
-              y: shootingPosition.y + 20,
-            };
-            break;
-
-          default:
-            bulletDirection = { x: 0, y: 0 };
-            bulletPosition = { x: 0, y: 0 };
-        }
+        const { bulletPosition, bulletDirection } = configureBullet(
+          entities.Player.body.position,
+          "Player",
+          events[i].lastDirection
+        );
 
         shootBullet(
           engine.world,
           "pink",
           bulletPosition,
           { width: 10, height: 10 },
-          bulletDirection,
-          {
-            label: "Bullet",
-            restitution: 0,
-            friction: 0,
-            frictionAir: 0,
-          }
+          bulletDirection
         );
       }
     }
@@ -144,104 +106,24 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
         x: 80 + Math.floor(Math.random() * 200),
         y: 80 + Math.floor(Math.random() * 200),
       },
-      { width: 30, height: 30 },
-      {
-        label: "Enemy",
-        isStatic: false,
-      }
+      { width: 30, height: 30 }
     );
   }
 
   if (time.current % 1000 < 10) {
     for (let entityKey in entities) {
       if (entityKey.startsWith("Enemy")) {
-        let bulletDirection;
-        let bulletPosition;
-        const shootingDirection = Math.floor(Math.random() * 8);
-        const shootingPosition = entities[entityKey].body.position;
-
-        switch (shootingDirection) {
-          case 0:
-            bulletDirection = { x: 0, y: -10 };
-            bulletPosition = {
-              x: shootingPosition.x,
-              y: shootingPosition.y - 20,
-            };
-            break;
-
-          case 1:
-            bulletDirection = { x: 10, y: -10 };
-            bulletPosition = {
-              x: shootingPosition.x + 20,
-              y: shootingPosition.y - 20,
-            };
-            break;
-
-          case 2:
-            bulletDirection = { x: 10, y: 0 };
-            bulletPosition = {
-              x: shootingPosition.x + 20,
-              y: shootingPosition.y,
-            };
-            break;
-
-          case 3:
-            bulletDirection = { x: 10, y: 10 };
-            bulletPosition = {
-              x: shootingPosition.x + 20,
-              y: shootingPosition.y + 20,
-            };
-            break;
-
-          case 4:
-            bulletDirection = { x: 0, y: 10 };
-            bulletPosition = {
-              x: shootingPosition.x,
-              y: shootingPosition.y + 20,
-            };
-            break;
-
-          case 5:
-            bulletDirection = { x: -10, y: 10 };
-            bulletPosition = {
-              x: shootingPosition.x - 20,
-              y: shootingPosition.y + 20,
-            };
-            break;
-
-          case 6:
-            bulletDirection = { x: -10, y: 0 };
-            bulletPosition = {
-              x: shootingPosition.x - 20,
-              y: shootingPosition.y,
-            };
-            break;
-
-          case 7:
-            bulletDirection = { x: -10, y: -10 };
-            bulletPosition = {
-              x: shootingPosition.x - 20,
-              y: shootingPosition.y - 20,
-            };
-            break;
-
-          default:
-            bulletDirection = { x: 0, y: 0 };
-            bulletPosition = { x: 0, y: 0 };
-        }
+        const { bulletPosition, bulletDirection } = configureBullet(
+          entities[entityKey].body.position,
+          "Enemy"
+        );
 
         shootBullet(
           engine.world,
           "pink",
           bulletPosition,
           { width: 10, height: 10 },
-          bulletDirection,
-          {
-            label: "Bullet",
-            restitution: 0,
-            friction: 0,
-            frictionAir: 0,
-          }
+          bulletDirection
         );
       }
     }
@@ -253,13 +135,15 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     var objBLabel = pairs[0].bodyB.label;
 
     if (
-      (objALabel === "Bullet" && objBLabel === "Enemy") ||
-      (objALabel === "Enemy" && objBLabel === "Bullet")
+      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Bullet"))
     ) {
       Matter.Body.setPosition(pairs[0].bodyA, { x: -100, y: -100 });
       Matter.Body.setPosition(pairs[0].bodyB, { x: -100, y: -100 });
 
       Matter.Composite.remove(engine.world, [pairs[0].bodyA, pairs[0].bodyB]);
+      delete entities[objALabel];
+      delete entities[objBLabel];
 
       if (currentCollisionId !== pairs[0].id) {
         dispatch({ type: "score" });
@@ -268,17 +152,19 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     }
 
     if (
-      (objALabel === "Bullet" && objBLabel === "Player") ||
-      (objALabel === "Player" && objBLabel === "Bullet")
+      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Player")) ||
+      (objALabel.startsWith("Player") && objBLabel.startsWith("Bullet"))
     ) {
       Matter.Body.setPosition(
-        objALabel === "Bullet" ? pairs[0].bodyA : pairs[0].bodyB,
+        objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB,
         { x: -100, y: -100 }
       );
       Matter.Composite.remove(
         engine.world,
-        objALabel === "Bullet" ? pairs[0].bodyA : pairs[0].bodyB
+        objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB
       );
+
+      delete entities[objALabel.startsWith("Bullet") ? objALabel : objBLabel];
 
       if (currentCollisionId !== pairs[0].id) {
         dispatch({ type: "hit" });
@@ -287,36 +173,40 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     }
 
     if (
-      (objALabel === "Player" && objBLabel === "Enemy") ||
-      (objALabel === "Enemy" && objBLabel === "Player")
+      (objALabel.startsWith("Player") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Player"))
     ) {
       if (currentCollisionId !== pairs[0].id) {
         dispatch({ type: "crash" });
         currentCollisionId = pairs[0].id;
 
         Matter.Body.setPosition(
-          objALabel === "Enemy" ? pairs[0].bodyA : pairs[0].bodyB,
+          objALabel.startsWith("Enemy") ? pairs[0].bodyA : pairs[0].bodyB,
           { x: -100, y: -100 }
         );
         Matter.Composite.remove(
           engine.world,
-          objALabel === "Enemy" ? pairs[0].bodyA : pairs[0].bodyB
+          objALabel.startsWith("Enemy") ? pairs[0].bodyA : pairs[0].bodyB
         );
+
+        delete entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel];
       }
     }
 
     if (
-      (objALabel === "Bullet" && objBLabel === "Boundary") ||
-      (objALabel === "Boundary" && objBLabel === "Bullet")
+      (objALabel.startsWith("Bullet") && objBLabel === "Boundary") ||
+      (objALabel === "Boundary" && objBLabel.startsWith("Bullet"))
     ) {
       Matter.Body.setPosition(
-        objALabel === "Bullet" ? pairs[0].bodyA : pairs[0].bodyB,
+        objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB,
         { x: -100, y: -100 }
       );
       Matter.Composite.remove(
         engine.world,
-        objALabel === "Bullet" ? pairs[0].bodyA : pairs[0].bodyB
+        objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB
       );
+
+      delete entities[objALabel.startsWith("Bullet") ? objALabel : objBLabel];
     }
   });
 

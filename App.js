@@ -40,7 +40,7 @@ export default function App() {
             style={styles.button}
             onPress={() => {
               gameEngine.dispatch({ type: "move-up" });
-              setLastDirection("up");
+              setLastDirection(0);
             }}
           >
             <View style={styles.control}>
@@ -53,7 +53,7 @@ export default function App() {
             style={styles.button}
             onPress={() => {
               gameEngine.dispatch({ type: "move-left" });
-              setLastDirection("left");
+              setLastDirection(6);
             }}
           >
             <View style={styles.control}>
@@ -74,7 +74,7 @@ export default function App() {
             style={styles.button}
             onPress={() => {
               gameEngine.dispatch({ type: "move-right" });
-              setLastDirection("right");
+              setLastDirection(2);
             }}
           >
             <View style={styles.control}>
@@ -88,7 +88,7 @@ export default function App() {
             style={styles.button}
             onPress={() => {
               gameEngine.dispatch({ type: "move-down" });
-              setLastDirection("down");
+              setLastDirection(4);
             }}
           >
             <View style={styles.control}>

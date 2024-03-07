@@ -1,8 +1,7 @@
-import Box from "../components/Box";
-
 import Boundary from "../components/Boundary";
 import Matter from "matter-js";
 import Constants from "../Constants";
+import Player from "../components/Player";
 
 export default (gameWorld) => {
   let engine = Matter.Engine.create({ enableSleeping: false });
@@ -13,7 +12,7 @@ export default (gameWorld) => {
     physics: { engine, world },
 
     //Player
-    Player: Box(
+    Player: Player(
       world,
       "blue",
       { x: Constants.WINDOW_WIDTH / 2, y: 190 },
