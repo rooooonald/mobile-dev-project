@@ -219,6 +219,33 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     Sleeping.set(entities.Player.body, false);
   });
 
+  Matter.Events.on(engine, "collisionEnd", (event) => {
+    var pairs = event.pairs;
+    var objALabel = pairs[0].bodyA.label;
+    var objBLabel = pairs[0].bodyB.label;
+
+    if (
+      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Bullet")) ||
+      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Player")) ||
+      (objALabel.startsWith("Player") && objBLabel.startsWith("Bullet")) ||
+      (objALabel.startsWith("Player") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Player")) ||
+      (objALabel.startsWith("Bullet") && objBLabel === "Boundary") ||
+      (objALabel === "Boundary" && objBLabel.startsWith("Bullet")) ||
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Bullet"))
+    ) {
+      if (currentCollisionId.includes(pairs[0].id)) {
+        currentCollisionId = currentCollisionId.filter(
+          (id) => id !== pairs[0].id
+        );
+      }
+    }
+
+    Sleeping.set(entities.Player.body, false);
+  });
+
   Matter.Engine.update(engine, time.delta);
 
   return entities;
