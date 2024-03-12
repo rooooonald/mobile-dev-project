@@ -1,6 +1,7 @@
-import Boundary from "../components/Boundary";
 import Matter from "matter-js";
 import Constants from "../Constants";
+
+import Boundary from "../components/Boundary";
 import Player from "../components/Player";
 
 export default (gameWorld) => {
@@ -11,7 +12,7 @@ export default (gameWorld) => {
   return {
     physics: { engine, world },
 
-    //Player
+    // Player
     Player: Player(
       world,
       "blue",
@@ -20,7 +21,7 @@ export default (gameWorld) => {
       { isStatic: false, label: "Player" }
     ),
 
-    //Boundary
+    // Boundaries
     BoundaryTop: Boundary(
       world,
       "red",

@@ -8,7 +8,6 @@ export const Enemy = (props) => {
   const xPos = props.body.position.x - width / 2;
   const yPos = props.body.position.y - height / 2;
 
-  let angle = props.body.angle + "deg";
   return (
     <View
       style={{
@@ -17,7 +16,6 @@ export const Enemy = (props) => {
         left: xPos,
         top: yPos,
         backgroundColor: props.color,
-        //transform: [{ rotate: angle }],
         position: "absolute",
       }}
     ></View>

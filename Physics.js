@@ -1,11 +1,13 @@
-import Matter from "matter-js";
+import Matter, { Sleeping } from "matter-js";
+
 import Bullet from "./components/Bullet";
-import { configureBullet } from "./lib/configure-bullet";
 import { Enemy } from "./components/Enemy";
+
+import { configureBullet } from "./lib/configure-bullet";
 
 let bulletIds = 0;
 let enemyIds = 0;
-var currentCollisionId;
+var currentCollisionId = [];
 
 const Physics = (entities, { touches, dispatch, events, time }) => {
   let engine = entities.physics.engine;
@@ -47,7 +49,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       size.height,
       {
         label: enemyLabel,
-        isStatic: false,
+        isStatic: true,
       }
     );
 
@@ -60,6 +62,13 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       size,
       renderer: <Enemy />,
     };
+  };
+
+  const playerHit = () => {
+    entities.Player.color = "red";
+    setTimeout(() => {
+      entities.Player.color = "blue";
+    }, 100);
   };
 
   /*************TOUCH CONTROLS WITH ARROW KEY ****************/
@@ -98,7 +107,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     }
   }
 
-  if (time.current % 3000 < 10) {
+  if (time.current % 2000 < 10) {
     spawnEnemy(
       engine.world,
       "red",
@@ -110,7 +119,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     );
   }
 
-  if (time.current % 1000 < 10) {
+  if (time.current % 500 < 10) {
     for (let entityKey in entities) {
       if (entityKey.startsWith("Enemy")) {
         const { bulletPosition, bulletDirection } = configureBullet(
@@ -138,16 +147,13 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       (objALabel.startsWith("Bullet") && objBLabel.startsWith("Enemy")) ||
       (objALabel.startsWith("Enemy") && objBLabel.startsWith("Bullet"))
     ) {
-      Matter.Body.setPosition(pairs[0].bodyA, { x: -100, y: -100 });
-      Matter.Body.setPosition(pairs[0].bodyB, { x: -100, y: -100 });
-
       Matter.Composite.remove(engine.world, [pairs[0].bodyA, pairs[0].bodyB]);
       delete entities[objALabel];
       delete entities[objBLabel];
 
-      if (currentCollisionId !== pairs[0].id) {
+      if (!currentCollisionId.includes(pairs[0].id)) {
         dispatch({ type: "score" });
-        currentCollisionId = pairs[0].id;
+        currentCollisionId.push(pairs[0].id);
       }
     }
 
@@ -155,41 +161,38 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       (objALabel.startsWith("Bullet") && objBLabel.startsWith("Player")) ||
       (objALabel.startsWith("Player") && objBLabel.startsWith("Bullet"))
     ) {
-      Matter.Body.setPosition(
-        objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB,
-        { x: -100, y: -100 }
-      );
       Matter.Composite.remove(
         engine.world,
         objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB
       );
-
       delete entities[objALabel.startsWith("Bullet") ? objALabel : objBLabel];
 
-      if (currentCollisionId !== pairs[0].id) {
+      playerHit();
+
+      if (!currentCollisionId.includes(pairs[0].id)) {
         dispatch({ type: "hit" });
-        currentCollisionId = pairs[0].id;
+        currentCollisionId.push(pairs[0].id);
       }
+      Sleeping.set(entities.Player.body, true);
     }
 
     if (
       (objALabel.startsWith("Player") && objBLabel.startsWith("Enemy")) ||
       (objALabel.startsWith("Enemy") && objBLabel.startsWith("Player"))
     ) {
-      if (currentCollisionId !== pairs[0].id) {
+      if (!currentCollisionId.includes(pairs[0].id)) {
         dispatch({ type: "crash" });
-        currentCollisionId = pairs[0].id;
+        currentCollisionId.push(pairs[0].id);
 
-        Matter.Body.setPosition(
-          objALabel.startsWith("Enemy") ? pairs[0].bodyA : pairs[0].bodyB,
-          { x: -100, y: -100 }
-        );
         Matter.Composite.remove(
           engine.world,
           objALabel.startsWith("Enemy") ? pairs[0].bodyA : pairs[0].bodyB
         );
-
         delete entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel];
+
+        playerHit();
+
+        Sleeping.set(entities.Player.body, true);
       }
     }
 
@@ -197,17 +200,23 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       (objALabel.startsWith("Bullet") && objBLabel === "Boundary") ||
       (objALabel === "Boundary" && objBLabel.startsWith("Bullet"))
     ) {
-      Matter.Body.setPosition(
-        objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB,
-        { x: -100, y: -100 }
-      );
       Matter.Composite.remove(
         engine.world,
         objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB
       );
-
       delete entities[objALabel.startsWith("Bullet") ? objALabel : objBLabel];
     }
+
+    if (
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Bullet"))
+    ) {
+      Matter.Composite.remove(engine.world, [pairs[0].bodyA, pairs[0].bodyB]);
+      delete entities[objALabel];
+      delete entities[objBLabel];
+    }
+
+    Sleeping.set(entities.Player.body, false);
   });
 
   Matter.Engine.update(engine, time.delta);
