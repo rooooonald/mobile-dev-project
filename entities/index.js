@@ -1,8 +1,10 @@
 import Matter from "matter-js";
-import Constants from "../Constants";
 
+import CONSTANTS from "../Constants";
 import Boundary from "../components/Boundary";
 import Player from "../components/Player";
+
+const { WINDOW_WIDTH, WINDOW_HEIGHT } = CONSTANTS;
 
 export default (gameWorld) => {
   let engine = Matter.Engine.create({ enableSleeping: false });
@@ -16,7 +18,7 @@ export default (gameWorld) => {
     Player: Player(
       world,
       "blue",
-      { x: Constants.WINDOW_WIDTH / 2, y: 190 },
+      { x: WINDOW_WIDTH / 2, y: 190 },
       { width: 20, height: 20 },
       { isStatic: false, label: "Player" }
     ),
@@ -24,37 +26,34 @@ export default (gameWorld) => {
     // Boundaries
     BoundaryTop: Boundary(
       world,
-      "red",
-      { x: Constants.WINDOW_WIDTH / 2, y: 0 },
-      { height: 30, width: Constants.WINDOW_WIDTH }
+      "transparent",
+      { x: WINDOW_WIDTH / 2, y: 0 },
+      { height: WINDOW_HEIGHT * 0.1, width: WINDOW_WIDTH },
+      { label: "BoundaryTop" }
     ),
 
     BoundaryLeft: Boundary(
       world,
-      "red",
-      { x: 0, y: Constants.WINDOW_HEIGHT / 2 },
-      { height: Constants.WINDOW_HEIGHT, width: 30 }
+      "transparent",
+      { x: 0, y: WINDOW_HEIGHT / 2 },
+      { height: WINDOW_HEIGHT, width: WINDOW_WIDTH * 0.1 },
+      { label: "BoundaryLeft" }
     ),
 
     BoundaryRight: Boundary(
       world,
-      "red",
-      { x: Constants.WINDOW_WIDTH, y: Constants.WINDOW_HEIGHT / 2 },
-      { height: Constants.WINDOW_HEIGHT, width: 30 }
+      "transparent",
+      { x: WINDOW_WIDTH, y: WINDOW_HEIGHT / 2 },
+      { height: WINDOW_HEIGHT, width: WINDOW_WIDTH * 0.1 },
+      { label: "BoundaryRight" }
     ),
 
     BoundaryCenter: Boundary(
       world,
-      "red",
-      { x: Constants.WINDOW_WIDTH / 2, y: Constants.WINDOW_WIDTH },
-      { height: 20, width: Constants.WINDOW_WIDTH }
-    ),
-
-    BoundaryBottom: Boundary(
-      world,
-      "red",
-      { x: Constants.WINDOW_WIDTH / 2, y: Constants.WINDOW_HEIGHT },
-      { height: 30, width: Constants.WINDOW_WIDTH }
+      "transparent",
+      { x: WINDOW_WIDTH / 2, y: WINDOW_HEIGHT * 0.6 },
+      { height: 20, width: WINDOW_WIDTH },
+      { label: "BoundaryCenter" }
     ),
   };
 };

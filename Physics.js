@@ -7,7 +7,7 @@ import { configureBullet } from "./lib/configure-bullet";
 
 let bulletIds = 0;
 let enemyIds = 0;
-var currentCollisionId = [];
+let currentCollisionId = [];
 
 const Physics = (entities, { touches, dispatch, events, time }) => {
   let engine = entities.physics.engine;
@@ -40,7 +40,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     Matter.Body.setVelocity(bullet, bulletVelocity);
   };
 
-  const spawnEnemy = (world, color, pos, size, extraOptions) => {
+  const spawnEnemy = (world, color, pos, size) => {
     let enemyLabel = `Enemy${++enemyIds}`;
     const enemy = Matter.Bodies.rectangle(
       pos.x,
@@ -49,7 +49,10 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       size.height,
       {
         label: enemyLabel,
-        isStatic: true,
+        restitution: 0,
+        friction: 0,
+        frictionAir: 0,
+        // isStatic: true,
       }
     );
 
@@ -62,6 +65,10 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       size,
       renderer: <Enemy />,
     };
+    Matter.Body.setVelocity(entities[enemyLabel].body, {
+      x: Math.random(),
+      y: Math.random(),
+    });
   };
 
   const playerHit = () => {
@@ -98,7 +105,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
 
         shootBullet(
           engine.world,
-          "pink",
+          "purple",
           bulletPosition,
           { width: 10, height: 10 },
           bulletDirection
@@ -129,7 +136,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
 
         shootBullet(
           engine.world,
-          "pink",
+          "purple",
           bulletPosition,
           { width: 10, height: 10 },
           bulletDirection
@@ -197,14 +204,44 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     }
 
     if (
-      (objALabel.startsWith("Bullet") && objBLabel === "Boundary") ||
-      (objALabel === "Boundary" && objBLabel.startsWith("Bullet"))
+      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Boundary")) ||
+      (objALabel.startsWith("Boundary") && objBLabel.startsWith("Bullet"))
     ) {
       Matter.Composite.remove(
         engine.world,
         objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB
       );
       delete entities[objALabel.startsWith("Bullet") ? objALabel : objBLabel];
+    }
+
+    if (
+      (objALabel.startsWith("Enemy") && objBLabel === "BoundaryTop") ||
+      (objALabel === "BoundaryTop" && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel === "BoundaryCenter") ||
+      (objALabel === "BoundaryCenter" && objBLabel.startsWith("Enemy"))
+    ) {
+      let enemyBody =
+        entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel].body;
+      let { x, y } = enemyBody.velocity;
+      Matter.Body.setVelocity(enemyBody, {
+        x,
+        y: y >= 0 ? -y : y,
+      });
+    }
+
+    if (
+      (objALabel.startsWith("Enemy") && objBLabel === "BoundaryLeft") ||
+      (objALabel === "BoundaryLeft" && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel === "BoundaryRight") ||
+      (objALabel === "BoundaryRight" && objBLabel.startsWith("Enemy"))
+    ) {
+      let enemyBody =
+        entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel].body;
+      let { x, y } = enemyBody.velocity;
+      Matter.Body.setVelocity(enemyBody, {
+        x: x >= 0 ? -x : x,
+        y,
+      });
     }
 
     if (
@@ -230,11 +267,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       (objALabel.startsWith("Bullet") && objBLabel.startsWith("Player")) ||
       (objALabel.startsWith("Player") && objBLabel.startsWith("Bullet")) ||
       (objALabel.startsWith("Player") && objBLabel.startsWith("Enemy")) ||
-      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Player")) ||
-      (objALabel.startsWith("Bullet") && objBLabel === "Boundary") ||
-      (objALabel === "Boundary" && objBLabel.startsWith("Bullet")) ||
-      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Enemy")) ||
-      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Bullet"))
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Player"))
     ) {
       if (currentCollisionId.includes(pairs[0].id)) {
         currentCollisionId = currentCollisionId.filter(

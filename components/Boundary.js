@@ -23,14 +23,14 @@ const Boundary = (props) => {
   );
 };
 
-export default (world, color, pos, size) => {
+export default (world, color, pos, size, extraOptions) => {
   const boundary = Matter.Bodies.rectangle(
     pos.x,
     pos.y,
     size.width,
     size.height,
     {
-      label: "Boundary",
+      ...extraOptions,
       isStatic: true,
       restitution: 0,
     }

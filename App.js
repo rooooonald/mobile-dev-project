@@ -1,27 +1,24 @@
 import React, { useEffect, useState } from "react";
-import {
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  View,
-  ImageBackground,
-} from "react-native";
+import { View, ImageBackground, SafeAreaView } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 import { GameEngine } from "react-native-game-engine";
 import entities from "./entities";
 import Physics from "./Physics";
 
-import { StatusBar } from "expo-status-bar";
+import GameOverScreen from "./components/screens/GameOverScreen";
+import WelcomeScreen from "./components/screens/WelcomeScreen";
+import ControlPanel from "./components/ControlPanel";
 
-import welcomeScreenBg from "./assets/welcome-screen-bg.png";
-import gameOverScreenBg from "./assets/game-over-bg.png";
+import { globalStyles } from "./styles/global-styles";
+import gameplayScreenBg from "./assets/frame.png";
+import PlayerInfo from "./components/PlayerInfo";
 
 export default function App() {
   const [gameEngine, setGameEngine] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
 
-  const [lastDirection, setLastDirection] = useState();
   const [score, setScore] = useState(0);
   const [lifeCount, setLifeCount] = useState(3);
 
@@ -43,7 +40,7 @@ export default function App() {
   const isWelcome = !isRunning && !isGameOver;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={globalStyles.container}>
       <GameEngine
         ref={(ref) => {
           setGameEngine(ref);
@@ -65,237 +62,30 @@ export default function App() {
               break;
           }
         }}
-        style={styles.gameContainer}
+        style={globalStyles.gameContainer}
       >
+        <ImageBackground
+          source={gameplayScreenBg}
+          resizeMode="stretch"
+          style={globalStyles.imageBackground}
+        />
         <StatusBar style="auto" hidden={true} />
       </GameEngine>
 
-      {isWelcome && (
-        <View style={styles.welcomeScreen}>
-          <ImageBackground
-            source={welcomeScreenBg}
-            resizeMode="cover"
-            style={styles.screenBg}
-          />
-          <Text
-            style={{
-              fontWeight: "bold",
-              color: "white",
-              fontSize: 45,
-              position: "absolute",
-              top: 200,
-            }}
-          >
-            THE TANK
-          </Text>
-          <TouchableOpacity
-            style={{
-              backgroundColor: "black",
-              paddingHorizontal: 30,
-              paddingVertical: 10,
-              position: "absolute",
-              top: 500,
-            }}
-            onPress={() => {
-              setIsRunning(true);
-            }}
-          >
-            <Text style={{ fontWeight: "bold", color: "white", fontSize: 10 }}>
-              START GAME
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {isWelcome && <WelcomeScreen onStartGame={() => setIsRunning(true)} />}
 
       {isGameOver && (
-        <View style={styles.gameOverScreen}>
-          <ImageBackground
-            source={gameOverScreenBg}
-            resizeMode="cover"
-            style={styles.screenBg}
-          />
-          <Text
-            style={{
-              fontWeight: "bold",
-              color: "white",
-              fontSize: 45,
-              position: "absolute",
-              top: 200,
-            }}
-          >
-            GAME OVER
-          </Text>
-          <Text
-            style={{
-              fontWeight: "bold",
-              color: "white",
-              fontSize: 20,
-              position: "absolute",
-              top: 300,
-            }}
-          >
-            YOUR SCORE: {score}
-          </Text>
-          <TouchableOpacity
-            style={{
-              backgroundColor: "black",
-              paddingHorizontal: 30,
-              paddingVertical: 10,
-              position: "absolute",
-              top: 500,
-            }}
-            onPress={() => {
-              setIsGameOver(false);
-              setIsRunning(true);
-            }}
-          >
-            <Text style={{ fontWeight: "bold", color: "white", fontSize: 10 }}>
-              RESTART GAME
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <GameOverScreen
+          score={score}
+          onRestartGame={() => {
+            setIsGameOver(false);
+            setIsRunning(true);
+          }}
+        />
       )}
 
-      <View style={styles.controls}>
-        <View style={styles.controlRow}>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={() => {
-              gameEngine.dispatch({ type: "move-up" });
-              setLastDirection(0);
-            }}
-          >
-            <Text style={styles.buttonText}>Up</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.controlRow}>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={() => {
-              gameEngine.dispatch({ type: "move-left" });
-              setLastDirection(6);
-            }}
-          >
-            <Text style={styles.buttonText}>Left</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.controlButton, styles.stopButton]}
-            onPress={() => {
-              gameEngine.dispatch({ type: "shoot", lastDirection });
-            }}
-          >
-            <Text style={[styles.buttonText]}>Shoot</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={() => {
-              gameEngine.dispatch({ type: "move-right" });
-              setLastDirection(2);
-            }}
-          >
-            <Text style={styles.buttonText}>Right</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.controlRow}>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={() => {
-              gameEngine.dispatch({ type: "move-down" });
-              setLastDirection(4);
-            }}
-          >
-            <Text style={styles.buttonText}>Down</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.playerInfo}>
-        <Text style={styles.score}>Score: {score}</Text>
-        <Text style={styles.lifeCount}>Life: {lifeCount}</Text>
-      </View>
-    </View>
+      <PlayerInfo score={score} lifeCount={lifeCount} />
+      <ControlPanel gameEngine={gameEngine} />
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: "relative",
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-end",
-    backgroundColor: "#fff",
-  },
-  gameContainer: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  },
-  welcomeScreen: {
-    flex: 1,
-    position: "absolute",
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black",
-    zIndex: 100,
-  },
-  gameOverScreen: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black",
-    zIndex: 100,
-  },
-  screenBg: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    opacity: 0.55,
-  },
-  controls: {
-    position: "absolute",
-    bottom: 100,
-    flexDirection: "column",
-    gap: 10,
-  },
-  controlRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-  },
-  controlButton: {
-    width: 100,
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#20B2AA",
-    borderRadius: "50%",
-  },
-  stopButton: {
-    backgroundColor: "red",
-  },
-  buttonText: {
-    color: "white",
-  },
-  playerInfo: {
-    position: "absolute",
-    bottom: 50,
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 30,
-  },
-});

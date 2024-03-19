@@ -16,7 +16,7 @@ const Bullet = (props) => {
         top: yPos,
         backgroundColor: props.color,
         position: "absolute",
-        // borderRadius: "50%",
+        display: props.visibility,
       }}
     ></View>
   );
