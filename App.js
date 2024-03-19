@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ImageBackground, SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
 import { GameEngine } from "react-native-game-engine";
@@ -9,10 +9,9 @@ import Physics from "./Physics";
 import GameOverScreen from "./components/screens/GameOverScreen";
 import WelcomeScreen from "./components/screens/WelcomeScreen";
 import ControlPanel from "./components/ControlPanel";
+import PlayerInfo from "./components/PlayerInfo";
 
 import { globalStyles } from "./styles/global-styles";
-import gameplayScreenBg from "./assets/frame.png";
-import PlayerInfo from "./components/PlayerInfo";
 
 export default function App() {
   const [gameEngine, setGameEngine] = useState(null);
@@ -20,12 +19,14 @@ export default function App() {
   const [isGameOver, setIsGameOver] = useState(false);
 
   const [score, setScore] = useState(0);
+  const [highestScore, setHighestScore] = useState(0);
   const [lifeCount, setLifeCount] = useState(3);
 
   useEffect(() => {
     if (lifeCount <= 0) {
       setIsGameOver(true);
       setIsRunning(false);
+      score > highestScore && setHighestScore(score);
       gameEngine.swap(entities()); // Remove all the previous added entities like bullets
     }
   }, [lifeCount]);
@@ -64,11 +65,6 @@ export default function App() {
         }}
         style={globalStyles.gameContainer}
       >
-        <ImageBackground
-          source={gameplayScreenBg}
-          resizeMode="stretch"
-          style={globalStyles.imageBackground}
-        />
         <StatusBar style="auto" hidden={true} />
       </GameEngine>
 
@@ -77,6 +73,7 @@ export default function App() {
       {isGameOver && (
         <GameOverScreen
           score={score}
+          highestScore={highestScore}
           onRestartGame={() => {
             setIsGameOver(false);
             setIsRunning(true);

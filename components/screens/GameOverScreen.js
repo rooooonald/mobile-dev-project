@@ -4,7 +4,7 @@ import { TouchableOpacity, Text, View, ImageBackground } from "react-native";
 import { globalStyles } from "../../styles/global-styles";
 import gameOverScreenBg from "../../assets/game-over-bg.png";
 
-export default function GameOverScreen({ score, onRestartGame }) {
+export default function GameOverScreen({ score, highestScore, onRestartGame }) {
   return (
     <View style={globalStyles.fullScreen}>
       <ImageBackground
@@ -33,6 +33,17 @@ export default function GameOverScreen({ score, onRestartGame }) {
         }}
       >
         YOUR SCORE: {score}
+      </Text>
+      <Text
+        style={{
+          fontWeight: "bold",
+          color: "white",
+          fontSize: 20,
+          position: "absolute",
+          top: 350,
+        }}
+      >
+        HIGHEST SCORE: {highestScore}
       </Text>
       <TouchableOpacity
         style={{

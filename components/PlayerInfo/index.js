@@ -1,29 +1,28 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 
-import CONSTANTS from "../../Constants";
-const { WINDOW_WIDTH, WINDOW_HEIGHT } = CONSTANTS;
+import Heart from "../ui/Heart";
 
 export default function PlayerInfo({ score, lifeCount }) {
   let healthBar;
   switch (lifeCount) {
     case 1:
-      healthBar = <View style={styles.heart} />;
+      healthBar = <Heart />;
       break;
     case 2:
       healthBar = (
         <>
-          <View style={styles.heart} />
-          <View style={styles.heart} />
+          <Heart />
+          <Heart />
         </>
       );
       break;
     case 3:
       healthBar = (
         <>
-          <View style={styles.heart} />
-          <View style={styles.heart} />
-          <View style={styles.heart} />
+          <Heart />
+          <Heart />
+          <Heart />
         </>
       );
       break;
@@ -45,10 +44,10 @@ export default function PlayerInfo({ score, lifeCount }) {
 
 const styles = StyleSheet.create({
   playerInfo: {
-    width: "80%",
+    width: "75%",
     height: 75,
     position: "absolute",
-    top: WINDOW_HEIGHT * 0.65 - 75,
+    top: Platform.OS === "ios" ? 475 : 425,
     flexDirection: "row",
     justifyContent: "center",
     gap: 30,
@@ -61,12 +60,6 @@ const styles = StyleSheet.create({
   healthBar: {
     flexDirection: "row",
     gap: 5,
-  },
-  heart: {
-    width: 30,
-    height: 30,
-    backgroundColor: "salmon",
-    borderRadius: 15,
   },
   score: {
     flex: 1,

@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-import { StyleSheet, View, ImageBackground } from "react-native";
+import { Platform, StyleSheet, View, ImageBackground } from "react-native";
 
-import CONSTANTS from "../../Constants";
 import ControlButton from "../ui/buttons/ControlButton";
-
-const { WINDOW_WIDTH, WINDOW_HEIGHT } = CONSTANTS;
 
 export default function ControlPanel({ gameEngine }) {
   const [lastDirection, setLastDirection] = useState();
@@ -18,7 +15,7 @@ export default function ControlPanel({ gameEngine }) {
               gameEngine.dispatch({ type: "move-up" });
               setLastDirection(0);
             }}
-            text="Up"
+            direction="up"
             action="direction"
           />
           <ControlButton
@@ -26,7 +23,7 @@ export default function ControlPanel({ gameEngine }) {
               gameEngine.dispatch({ type: "move-right" });
               setLastDirection(2);
             }}
-            text="Right"
+            direction="right"
             action="direction"
           />
         </View>
@@ -36,7 +33,7 @@ export default function ControlPanel({ gameEngine }) {
               gameEngine.dispatch({ type: "move-left" });
               setLastDirection(6);
             }}
-            text="Left"
+            direction="left"
             action="direction"
           />
           <ControlButton
@@ -44,7 +41,7 @@ export default function ControlPanel({ gameEngine }) {
               gameEngine.dispatch({ type: "move-down" });
               setLastDirection(4);
             }}
-            text="Down"
+            direction="down"
             action="direction"
           />
         </View>
@@ -64,20 +61,25 @@ export default function ControlPanel({ gameEngine }) {
 
 const styles = StyleSheet.create({
   controls: {
+    width: "100%",
+    height: "50%",
+    padding: 30,
     position: "absolute",
-    bottom: WINDOW_HEIGHT * 0.1,
+    top: Platform.OS === "ios" ? 620 : 560,
     flexDirection: "row",
-    gap: -40,
+    alignItems: "flex-start",
+    gap: 15,
+    backgroundColor: "#301e0b",
   },
   controlDirection: {
-    flex: 1,
+    width: "50%",
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
+    gap: -10,
     transform: "rotate(45deg)",
   },
   controlShoot: {
-    flex: 1,
+    width: "50%",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
@@ -86,6 +88,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 10,
+    gap: -10,
   },
 });

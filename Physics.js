@@ -4,6 +4,7 @@ import Bullet from "./components/Bullet";
 import { Enemy } from "./components/Enemy";
 
 import { configureBullet } from "./lib/configure-bullet";
+import CONSTANTS from "./Constants";
 
 let bulletIds = 0;
 let enemyIds = 0;
@@ -97,7 +98,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
         Matter.Body.setVelocity(entities.Player.body, { x: 0, y: 0 });
       }
       if (events[i].type === "shoot") {
-        const { bulletPosition, bulletDirection } = configureBullet(
+        const { bulletPosition, bulletVelocity } = configureBullet(
           entities.Player.body.position,
           "Player",
           events[i].lastDirection
@@ -108,7 +109,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
           "purple",
           bulletPosition,
           { width: 10, height: 10 },
-          bulletDirection
+          bulletVelocity
         );
       }
     }
@@ -119,8 +120,8 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
       engine.world,
       "red",
       {
-        x: 80 + Math.floor(Math.random() * 200),
-        y: 80 + Math.floor(Math.random() * 200),
+        x: 100 + Math.floor(Math.random() * (CONSTANTS.WINDOW_WIDTH - 150)),
+        y: 100 + Math.floor(Math.random() * 350),
       },
       { width: 30, height: 30 }
     );
@@ -129,7 +130,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
   if (time.current % 500 < 10) {
     for (let entityKey in entities) {
       if (entityKey.startsWith("Enemy")) {
-        const { bulletPosition, bulletDirection } = configureBullet(
+        const { bulletPosition, bulletVelocity } = configureBullet(
           entities[entityKey].body.position,
           "Enemy"
         );
@@ -139,7 +140,7 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
           "purple",
           bulletPosition,
           { width: 10, height: 10 },
-          bulletDirection
+          bulletVelocity
         );
       }
     }
@@ -216,30 +217,52 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
 
     if (
       (objALabel.startsWith("Enemy") && objBLabel === "BoundaryTop") ||
-      (objALabel === "BoundaryTop" && objBLabel.startsWith("Enemy")) ||
+      (objALabel === "BoundaryTop" && objBLabel.startsWith("Enemy"))
+    ) {
+      let enemyBody =
+        entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel].body;
+      let { x } = enemyBody.velocity;
+      Matter.Body.setVelocity(enemyBody, {
+        x,
+        y: Math.random(),
+      });
+    }
+
+    if (
       (objALabel.startsWith("Enemy") && objBLabel === "BoundaryCenter") ||
       (objALabel === "BoundaryCenter" && objBLabel.startsWith("Enemy"))
     ) {
       let enemyBody =
         entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel].body;
-      let { x, y } = enemyBody.velocity;
+      let { x } = enemyBody.velocity;
       Matter.Body.setVelocity(enemyBody, {
         x,
-        y: y >= 0 ? -y : y,
+        y: -Math.random(),
       });
     }
 
     if (
       (objALabel.startsWith("Enemy") && objBLabel === "BoundaryLeft") ||
-      (objALabel === "BoundaryLeft" && objBLabel.startsWith("Enemy")) ||
+      (objALabel === "BoundaryLeft" && objBLabel.startsWith("Enemy"))
+    ) {
+      let enemyBody =
+        entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel].body;
+      let { y } = enemyBody.velocity;
+      Matter.Body.setVelocity(enemyBody, {
+        x: Math.random(),
+        y,
+      });
+    }
+
+    if (
       (objALabel.startsWith("Enemy") && objBLabel === "BoundaryRight") ||
       (objALabel === "BoundaryRight" && objBLabel.startsWith("Enemy"))
     ) {
       let enemyBody =
         entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel].body;
-      let { x, y } = enemyBody.velocity;
+      let { y } = enemyBody.velocity;
       Matter.Body.setVelocity(enemyBody, {
-        x: x >= 0 ? -x : x,
+        x: -Math.random(),
         y,
       });
     }

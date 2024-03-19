@@ -4,7 +4,7 @@ import CONSTANTS from "../Constants";
 import Boundary from "../components/Boundary";
 import Player from "../components/Player";
 
-const { WINDOW_WIDTH, WINDOW_HEIGHT } = CONSTANTS;
+const { WINDOW_WIDTH } = CONSTANTS;
 
 export default (gameWorld) => {
   let engine = Matter.Engine.create({ enableSleeping: false });
@@ -24,35 +24,36 @@ export default (gameWorld) => {
     ),
 
     // Boundaries
-    BoundaryTop: Boundary(
-      world,
-      "transparent",
-      { x: WINDOW_WIDTH / 2, y: 0 },
-      { height: WINDOW_HEIGHT * 0.1, width: WINDOW_WIDTH },
-      { label: "BoundaryTop" }
-    ),
 
     BoundaryLeft: Boundary(
       world,
-      "transparent",
-      { x: 0, y: WINDOW_HEIGHT / 2 },
-      { height: WINDOW_HEIGHT, width: WINDOW_WIDTH * 0.1 },
+      "#301e0b",
+      { x: 15, y: 250 },
+      { height: 500, width: 30 },
       { label: "BoundaryLeft" }
     ),
 
     BoundaryRight: Boundary(
       world,
-      "transparent",
-      { x: WINDOW_WIDTH, y: WINDOW_HEIGHT / 2 },
-      { height: WINDOW_HEIGHT, width: WINDOW_WIDTH * 0.1 },
+      "#301e0b",
+      { x: WINDOW_WIDTH - 15, y: 250 },
+      { height: 500, width: 30 },
       { label: "BoundaryRight" }
+    ),
+
+    BoundaryTop: Boundary(
+      world,
+      "#301e0b",
+      { x: WINDOW_WIDTH / 2, y: 40 },
+      { height: 80, width: WINDOW_WIDTH },
+      { label: "BoundaryTop" }
     ),
 
     BoundaryCenter: Boundary(
       world,
-      "transparent",
-      { x: WINDOW_WIDTH / 2, y: WINDOW_HEIGHT * 0.6 },
-      { height: 20, width: WINDOW_WIDTH },
+      "#301e0b",
+      { x: WINDOW_WIDTH / 2, y: 540 },
+      { height: 80, width: WINDOW_WIDTH },
       { label: "BoundaryCenter" }
     ),
   };
