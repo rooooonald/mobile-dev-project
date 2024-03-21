@@ -82,6 +82,8 @@ const Physics = (entities, { dispatch, events, time }) => {
 
   let timer;
   const playerHit = () => {
+    Sleeping.set(entities.Player.body, true);
+
     if (timer) {
       clearTimeout(timer);
     }
@@ -89,6 +91,7 @@ const Physics = (entities, { dispatch, events, time }) => {
 
     timer = setTimeout(() => {
       entities.Player.animOptions.animType = "moving";
+      Sleeping.set(entities.Player.body, false);
     }, 500);
   };
 
@@ -207,13 +210,12 @@ const Physics = (entities, { dispatch, events, time }) => {
         objALabel.startsWith("BulletEnemy") ? objALabel : objBLabel
       ];
 
-      playerHit();
-
       if (!currentCollisionId.includes(pairs[0].id)) {
+        playerHit();
+
         dispatch({ type: "hit" });
         currentCollisionId.push(pairs[0].id);
       }
-      Sleeping.set(entities.Player.body, true);
     }
 
     if (
@@ -221,6 +223,8 @@ const Physics = (entities, { dispatch, events, time }) => {
       (objALabel.startsWith("Enemy") && objBLabel.startsWith("Player"))
     ) {
       if (!currentCollisionId.includes(pairs[0].id)) {
+        playerHit();
+
         dispatch({ type: "crash" });
         currentCollisionId.push(pairs[0].id);
 
@@ -229,10 +233,6 @@ const Physics = (entities, { dispatch, events, time }) => {
           objALabel.startsWith("Enemy") ? pairs[0].bodyA : pairs[0].bodyB
         );
         delete entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel];
-
-        playerHit();
-
-        Sleeping.set(entities.Player.body, true);
       }
     }
 
@@ -307,8 +307,6 @@ const Physics = (entities, { dispatch, events, time }) => {
       delete entities[objALabel];
       delete entities[objBLabel];
     }
-
-    Sleeping.set(entities.Player.body, false);
   });
 
   Matter.Events.on(engine, "collisionEnd", (event) => {
@@ -330,8 +328,6 @@ const Physics = (entities, { dispatch, events, time }) => {
         );
       }
     }
-
-    Sleeping.set(entities.Player.body, false);
   });
 
   Matter.Engine.update(engine, time.delta);

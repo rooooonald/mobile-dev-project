@@ -34,7 +34,7 @@ export default function App() {
   }, [lifeCount]);
 
   useEffect(() => {
-    if (score >= 3) {
+    if (score >= 10) {
       setIsSuccess(true);
       gameEndedHandler();
     }
@@ -97,7 +97,7 @@ export default function App() {
       )}
 
       {isGameOver && isSuccess && (
-        <SuccessScreen score={score} onRestartGame={gameRestartHandler} />
+        <SuccessScreen onRestartGame={gameRestartHandler} />
       )}
 
       <PlayerInfo score={score} lifeCount={lifeCount} />

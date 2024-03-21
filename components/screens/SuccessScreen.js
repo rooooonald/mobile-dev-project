@@ -4,7 +4,7 @@ import { TouchableOpacity, Text, View, ImageBackground } from "react-native";
 import { globalStyles } from "../../styles/global-styles";
 import successScreenBg from "../../assets/success-bg.jpg";
 
-export default function SuccessScreen({ score, onRestartGame }) {
+export default function SuccessScreen({ onRestartGame }) {
   return (
     <View style={globalStyles.fullScreen}>
       <ImageBackground
@@ -22,17 +22,6 @@ export default function SuccessScreen({ score, onRestartGame }) {
         }}
       >
         You Win!
-      </Text>
-      <Text
-        style={{
-          fontWeight: "bold",
-          color: "white",
-          fontSize: 20,
-          position: "absolute",
-          top: 300,
-        }}
-      >
-        YOUR SCORE: {score}
       </Text>
 
       <TouchableOpacity
