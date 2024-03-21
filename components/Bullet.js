@@ -1,4 +1,6 @@
-import { View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
+
+import bulletImg from "../assets/game-elements/bullet.png";
 
 const Bullet = (props) => {
   const width = props.size.width;
@@ -14,12 +16,21 @@ const Bullet = (props) => {
         height: props.size.height,
         left: xPos,
         top: yPos,
-        backgroundColor: props.color,
         position: "absolute",
-        display: props.visibility,
+        transform: [{ rotate: `${props.bulletAngle}deg` }],
       }}
-    ></View>
+    >
+      <Image style={styles.bullet} source={bulletImg} />
+    </View>
   );
 };
 
 export default Bullet;
+
+const styles = StyleSheet.create({
+  bullet: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "stretch",
+  },
+});

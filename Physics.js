@@ -10,14 +10,23 @@ let bulletIds = 0;
 let enemyIds = 0;
 let currentCollisionId = [];
 
-const Physics = (entities, { touches, dispatch, events, time }) => {
+const Physics = (entities, { dispatch, events, time }) => {
   let engine = entities.physics.engine;
 
-  const shootBullet = (world, color, pos, size, bulletVelocity) => {
-    let bulletLabel = `Bullet${++bulletIds}`;
+  entities.Player.body.inverseInertia = 0; // Setting inverseInertia to zero effectively means that the body has infinite resistance to rotation
+
+  const shootBullet = (
+    world,
+    size,
+    bulletPosition,
+    bulletVelocity,
+    bulletAngle,
+    from
+  ) => {
+    let bulletLabel = `Bullet${from}${++bulletIds}`;
     const bullet = Matter.Bodies.rectangle(
-      pos.x,
-      pos.y,
+      bulletPosition.x,
+      bulletPosition.y,
       size.width,
       size.height,
       {
@@ -32,9 +41,9 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
 
     entities[bulletLabel] = {
       body: bullet,
-      color,
-      pos,
+      bulletPosition,
       size,
+      bulletAngle,
       renderer: <Bullet />,
     };
 
@@ -53,7 +62,6 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
         restitution: 0,
         friction: 0,
         frictionAir: 0,
-        // isStatic: true,
       }
     );
 
@@ -72,33 +80,40 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     });
   };
 
+  let timer;
   const playerHit = () => {
-    entities.Player.color = "red";
-    setTimeout(() => {
-      entities.Player.color = "blue";
-    }, 100);
+    if (timer) {
+      clearTimeout(timer);
+    }
+    entities.Player.animOptions.animType = "explode";
+
+    timer = setTimeout(() => {
+      entities.Player.animOptions.animType = "moving";
+    }, 500);
   };
 
   /*************TOUCH CONTROLS WITH ARROW KEY ****************/
   if (events.length) {
     for (let i = 0; i < events.length; i++) {
       if (events[i].type === "move-up") {
+        Matter.Body.setAngle(entities.Player.body, 0);
         Matter.Body.setVelocity(entities.Player.body, { x: 0, y: -3 });
       }
       if (events[i].type === "move-down") {
+        Matter.Body.setAngle(entities.Player.body, Math.PI);
         Matter.Body.setVelocity(entities.Player.body, { x: 0, y: 3 });
       }
       if (events[i].type === "move-left") {
+        Matter.Body.setAngle(entities.Player.body, (3 * Math.PI) / 2);
         Matter.Body.setVelocity(entities.Player.body, { x: -3, y: 0 });
       }
       if (events[i].type === "move-right") {
+        Matter.Body.setAngle(entities.Player.body, Math.PI / 2);
         Matter.Body.setVelocity(entities.Player.body, { x: 3, y: 0 });
       }
-      if (events[i].type === "stop") {
-        Matter.Body.setVelocity(entities.Player.body, { x: 0, y: 0 });
-      }
+
       if (events[i].type === "shoot") {
-        const { bulletPosition, bulletVelocity } = configureBullet(
+        const { bulletPosition, bulletVelocity, bulletAngle } = configureBullet(
           entities.Player.body.position,
           "Player",
           events[i].lastDirection
@@ -106,10 +121,11 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
 
         shootBullet(
           engine.world,
-          "purple",
+          { width: 6, height: 15 },
           bulletPosition,
-          { width: 10, height: 10 },
-          bulletVelocity
+          bulletVelocity,
+          bulletAngle,
+          "Player"
         );
       }
     }
@@ -130,17 +146,18 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
   if (time.current % 500 < 10) {
     for (let entityKey in entities) {
       if (entityKey.startsWith("Enemy")) {
-        const { bulletPosition, bulletVelocity } = configureBullet(
+        const { bulletPosition, bulletVelocity, bulletAngle } = configureBullet(
           entities[entityKey].body.position,
           "Enemy"
         );
 
         shootBullet(
           engine.world,
-          "purple",
+          { width: 6, height: 15 },
           bulletPosition,
-          { width: 10, height: 10 },
-          bulletVelocity
+          bulletVelocity,
+          bulletAngle,
+          "Enemy"
         );
       }
     }
@@ -152,8 +169,8 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     var objBLabel = pairs[0].bodyB.label;
 
     if (
-      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Enemy")) ||
-      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Bullet"))
+      (objALabel.startsWith("BulletPlayer") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("BulletPlayer"))
     ) {
       Matter.Composite.remove(engine.world, [pairs[0].bodyA, pairs[0].bodyB]);
       delete entities[objALabel];
@@ -166,14 +183,29 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     }
 
     if (
-      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Player")) ||
-      (objALabel.startsWith("Player") && objBLabel.startsWith("Bullet"))
+      (objALabel.startsWith("BulletEnemy") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("BulletEnemy"))
     ) {
       Matter.Composite.remove(
         engine.world,
-        objALabel.startsWith("Bullet") ? pairs[0].bodyA : pairs[0].bodyB
+        objALabel.startsWith("BulletEnemy") ? pairs[0].bodyA : pairs[0].bodyB
       );
-      delete entities[objALabel.startsWith("Bullet") ? objALabel : objBLabel];
+      delete entities[
+        objALabel.startsWith("BulletEnemy") ? objALabel : objBLabel
+      ];
+    }
+
+    if (
+      (objALabel.startsWith("BulletEnemy") && objBLabel.startsWith("Player")) ||
+      (objALabel.startsWith("Player") && objBLabel.startsWith("BulletEnemy"))
+    ) {
+      Matter.Composite.remove(
+        engine.world,
+        objALabel.startsWith("BulletEnemy") ? pairs[0].bodyA : pairs[0].bodyB
+      );
+      delete entities[
+        objALabel.startsWith("BulletEnemy") ? objALabel : objBLabel
+      ];
 
       playerHit();
 
@@ -285,10 +317,10 @@ const Physics = (entities, { touches, dispatch, events, time }) => {
     var objBLabel = pairs[0].bodyB.label;
 
     if (
-      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Enemy")) ||
-      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Bullet")) ||
-      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Player")) ||
-      (objALabel.startsWith("Player") && objBLabel.startsWith("Bullet")) ||
+      (objALabel.startsWith("BulletPlayer") && objBLabel.startsWith("Enemy")) ||
+      (objALabel.startsWith("Enemy") && objBLabel.startsWith("BulletPlayer")) ||
+      (objALabel.startsWith("BulletEnemy") && objBLabel.startsWith("Player")) ||
+      (objALabel.startsWith("Player") && objBLabel.startsWith("BulletEnemy")) ||
       (objALabel.startsWith("Player") && objBLabel.startsWith("Enemy")) ||
       (objALabel.startsWith("Enemy") && objBLabel.startsWith("Player"))
     ) {

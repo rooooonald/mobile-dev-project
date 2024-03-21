@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Platform, StyleSheet, View, ImageBackground } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 
 import ControlButton from "../ui/buttons/ControlButton";
 
-export default function ControlPanel({ gameEngine }) {
-  const [lastDirection, setLastDirection] = useState();
-
+export default function ControlPanel({
+  gameEngine,
+  lastDirection,
+  setLastDirection,
+}) {
   return (
     <View style={styles.controls}>
       <View style={styles.controlDirection}>

@@ -19,8 +19,11 @@ export default (gameWorld) => {
       world,
       "blue",
       { x: WINDOW_WIDTH / 2, y: 190 },
-      { width: 20, height: 20 },
-      { isStatic: false, label: "Player" }
+      { width: 50, height: 50 },
+      { isStatic: false, label: "Player" },
+      {
+        animType: "moving",
+      }
     ),
 
     // Boundaries

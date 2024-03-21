@@ -1,20 +1,14 @@
 import React from "react";
-import {
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  View,
-  ImageBackground,
-} from "react-native";
+import { TouchableOpacity, Text, View, ImageBackground } from "react-native";
 
 import { globalStyles } from "../../styles/global-styles";
-import welcomeScreenBg from "../../assets/welcome-bg.png";
+import successScreenBg from "../../assets/success-bg.jpg";
 
-export default function WelcomeScreen({ onStartGame }) {
+export default function SuccessScreen({ score, onRestartGame }) {
   return (
     <View style={globalStyles.fullScreen}>
       <ImageBackground
-        source={welcomeScreenBg}
+        source={successScreenBg}
         resizeMode="cover"
         style={globalStyles.imageBackground}
       />
@@ -27,8 +21,20 @@ export default function WelcomeScreen({ onStartGame }) {
           top: 200,
         }}
       >
-        TANK ATTACK
+        You Win!
       </Text>
+      <Text
+        style={{
+          fontWeight: "bold",
+          color: "white",
+          fontSize: 20,
+          position: "absolute",
+          top: 300,
+        }}
+      >
+        YOUR SCORE: {score}
+      </Text>
+
       <TouchableOpacity
         style={{
           backgroundColor: "black",
@@ -37,10 +43,10 @@ export default function WelcomeScreen({ onStartGame }) {
           position: "absolute",
           top: 500,
         }}
-        onPress={onStartGame}
+        onPress={onRestartGame}
       >
         <Text style={{ fontWeight: "bold", color: "white", fontSize: 10 }}>
-          START GAME
+          RESTART GAME
         </Text>
       </TouchableOpacity>
     </View>

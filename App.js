@@ -6,8 +6,9 @@ import { GameEngine } from "react-native-game-engine";
 import entities from "./entities";
 import Physics from "./Physics";
 
-import GameOverScreen from "./components/screens/GameOverScreen";
 import WelcomeScreen from "./components/screens/WelcomeScreen";
+import GameOverScreen from "./components/screens/GameOverScreen";
+import SuccessScreen from "./components/screens/SuccessScreen";
 import ControlPanel from "./components/ControlPanel";
 import PlayerInfo from "./components/PlayerInfo";
 
@@ -17,28 +18,45 @@ export default function App() {
   const [gameEngine, setGameEngine] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const [score, setScore] = useState(0);
   const [highestScore, setHighestScore] = useState(0);
   const [lifeCount, setLifeCount] = useState(3);
+  const [lastDirection, setLastDirection] = useState(0);
 
   useEffect(() => {
     if (lifeCount <= 0) {
-      setIsGameOver(true);
-      setIsRunning(false);
-      score > highestScore && setHighestScore(score);
-      gameEngine.swap(entities()); // Remove all the previous added entities like bullets
+      const timer = setTimeout(gameEndedHandler, 300);
+
+      return () => clearTimeout(timer);
     }
   }, [lifeCount]);
 
   useEffect(() => {
-    if (!isGameOver) {
-      setLifeCount(3);
-      setScore(0);
+    if (score >= 3) {
+      setIsSuccess(true);
+      gameEndedHandler();
     }
-  }, [isGameOver]);
+  }, [score]);
 
-  const isWelcome = !isRunning && !isGameOver;
+  const gameEndedHandler = () => {
+    setIsRunning(false);
+    setIsGameOver(true);
+    score > highestScore && setHighestScore(score);
+    gameEngine.swap(entities()); // Remove all the previous added entities like bullets
+  };
+
+  const gameRestartHandler = () => {
+    setIsRunning(true);
+    setIsGameOver(false);
+    setIsSuccess(false);
+    setLastDirection(0);
+    setLifeCount(3);
+    setScore(0);
+  };
+
+  const isWelcome = !isRunning && !isGameOver && !isSuccess;
 
   return (
     <SafeAreaView style={globalStyles.container}>
@@ -70,19 +88,24 @@ export default function App() {
 
       {isWelcome && <WelcomeScreen onStartGame={() => setIsRunning(true)} />}
 
-      {isGameOver && (
+      {isGameOver && !isSuccess && (
         <GameOverScreen
           score={score}
           highestScore={highestScore}
-          onRestartGame={() => {
-            setIsGameOver(false);
-            setIsRunning(true);
-          }}
+          onRestartGame={gameRestartHandler}
         />
       )}
 
+      {isGameOver && isSuccess && (
+        <SuccessScreen score={score} onRestartGame={gameRestartHandler} />
+      )}
+
       <PlayerInfo score={score} lifeCount={lifeCount} />
-      <ControlPanel gameEngine={gameEngine} />
+      <ControlPanel
+        gameEngine={gameEngine}
+        lastDirection={lastDirection}
+        setLastDirection={setLastDirection}
+      />
     </SafeAreaView>
   );
 }

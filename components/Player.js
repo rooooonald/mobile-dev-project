@@ -1,6 +1,9 @@
 import { View } from "react-native";
 import Matter from "matter-js";
 
+import SpriteSheet from "rn-sprite-sheet";
+import { useEffect } from "react";
+
 export const Player = (props) => {
   const width = props.size.width;
   const height = props.size.height;
@@ -8,7 +11,23 @@ export const Player = (props) => {
   const xPos = props.body.position.x - width / 2;
   const yPos = props.body.position.y - height / 2;
 
-  let angle = props.body.angle + "deg";
+  let tank = null;
+
+  let initiateTank = () => {
+    tank.play({
+      type: props.animOptions.animType,
+      loop: true,
+    });
+  };
+
+  useEffect(() => {
+    tank.play({
+      type: props.animOptions.animType,
+      loop: false,
+      fps: 24,
+    });
+  }, [props.animOptions.animType]);
+
   return (
     <View
       style={{
@@ -16,15 +35,28 @@ export const Player = (props) => {
         height: props.size.height,
         left: xPos,
         top: yPos,
-        backgroundColor: props.color,
-        //transform: [{ rotate: angle }],
         position: "absolute",
+        transform: `rotate(${props.body.angle}rad)`,
       }}
-    ></View>
+    >
+      <SpriteSheet
+        ref={(ref) => (tank = ref)}
+        source={require("../assets/game-elements/tank.png")}
+        columns={5}
+        rows={2}
+        height={height}
+        onLoad={() => initiateTank()}
+        imageStyle={{ marginTop: 0 }}
+        animations={{
+          explode: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+          moving: [0],
+        }}
+      />
+    </View>
   );
 };
 
-export default (world, color, pos, size, extraOptions) => {
+export default (world, color, pos, size, extraOptions, animOptions) => {
   const player = Matter.Bodies.rectangle(
     pos.x,
     pos.y,
@@ -36,8 +68,18 @@ export default (world, color, pos, size, extraOptions) => {
       frictionAir: 0,
       restitution: 0,
       isStatic: extraOptions.isStatic || false,
-    }
+      angularVelocity: 0,
+    },
+    animOptions
   );
   Matter.World.add(world, player);
-  return { body: player, color, pos, size, extraOptions, renderer: <Player /> };
+  return {
+    body: player,
+    color,
+    pos,
+    size,
+    extraOptions,
+    animOptions,
+    renderer: <Player />,
+  };
 };
