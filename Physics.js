@@ -50,20 +50,14 @@ const Physics = (entities, { dispatch, events, time }) => {
     Matter.Body.setVelocity(bullet, bulletVelocity);
   };
 
-  const spawnEnemy = (world, color, pos, size) => {
+  const spawnEnemy = (world, color, pos, radius) => {
     let enemyLabel = `Enemy${++enemyIds}`;
-    const enemy = Matter.Bodies.rectangle(
-      pos.x,
-      pos.y,
-      size.width,
-      size.height,
-      {
-        label: enemyLabel,
-        restitution: 0,
-        friction: 0,
-        frictionAir: 0,
-      }
-    );
+    const enemy = Matter.Bodies.circle(pos.x, pos.y, radius, {
+      label: enemyLabel,
+      restitution: 0,
+      friction: 0,
+      frictionAir: 0,
+    });
 
     Matter.Composite.add(world, [enemy]);
 
@@ -71,7 +65,7 @@ const Physics = (entities, { dispatch, events, time }) => {
       body: enemy,
       color,
       pos,
-      size,
+      radius,
       renderer: <Enemy />,
     };
     Matter.Body.setVelocity(entities[enemyLabel].body, {
@@ -134,19 +128,46 @@ const Physics = (entities, { dispatch, events, time }) => {
     }
   }
 
+  let isSpawningEnemy = false;
   if (time.current % 2000 < 10) {
-    spawnEnemy(
-      engine.world,
-      "red",
-      {
-        x: 100 + Math.floor(Math.random() * (CONSTANTS.WINDOW_WIDTH - 150)),
-        y: 100 + Math.floor(Math.random() * 350),
-      },
-      { width: 30, height: 30 }
-    );
+    if (!isSpawningEnemy) {
+      isSpawningEnemy = true;
+      let randomX, randomY;
+      do {
+        randomX =
+          100 + Math.floor(Math.random() * (CONSTANTS.WINDOW_WIDTH - 150));
+        randomY = 100 + Math.floor(Math.random() * 350);
+      } while (
+        Math.abs(randomX - entities.Player.body.position.x) < 100 ||
+        Math.abs(randomY - entities.Player.body.position.y) < 100
+      );
+
+      spawnEnemy(
+        engine.world,
+        "red",
+        {
+          x: randomX,
+          y: randomY,
+        },
+        15
+      );
+
+      isSpawningEnemy = false;
+    }
+
+    // let randomX =
+    //   100 + Math.floor(Math.random() * (CONSTANTS.WINDOW_WIDTH - 150));
+    // let randomY = 100 + Math.floor(Math.random() * 350);
+
+    // if (
+    //   Math.abs(randomX - entities.Player.body.position.x) < 50 ||
+    //   Math.abs(randomY - entities.Player.body.position.y) < 50
+    // ) {
+    //   return entities;
+    // }
   }
 
-  if (time.current % 500 < 10) {
+  if (time.current % 1000 < 10) {
     for (let entityKey in entities) {
       if (entityKey.startsWith("Enemy")) {
         const { bulletPosition, bulletVelocity, bulletAngle } = configureBullet(
@@ -299,10 +320,19 @@ const Physics = (entities, { dispatch, events, time }) => {
       });
     }
 
-    if (
-      (objALabel.startsWith("Enemy") && objBLabel.startsWith("Enemy")) ||
-      (objALabel.startsWith("Bullet") && objBLabel.startsWith("Bullet"))
-    ) {
+    if (objALabel.startsWith("Enemy") && objBLabel.startsWith("Enemy")) {
+      Matter.Body.setVelocity(entities[objALabel].body, {
+        x: -Math.random(),
+        y: -Math.random(),
+      });
+
+      Matter.Body.setVelocity(entities[objBLabel].body, {
+        x: -Math.random(),
+        y: -Math.random(),
+      });
+    }
+
+    if (objALabel.startsWith("Bullet") && objBLabel.startsWith("Bullet")) {
       Matter.Composite.remove(engine.world, [pairs[0].bodyA, pairs[0].bodyB]);
       delete entities[objALabel];
       delete entities[objBLabel];
