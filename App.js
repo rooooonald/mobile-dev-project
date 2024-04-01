@@ -34,7 +34,7 @@ export default function App() {
   }, [lifeCount]);
 
   useEffect(() => {
-    if (score >= 10) {
+    if (score >= 1) {
       setIsSuccess(true);
       gameEndedHandler();
     }
