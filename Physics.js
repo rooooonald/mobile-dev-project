@@ -1,6 +1,7 @@
 import Matter, { Sleeping } from "matter-js";
 
-import Bullet from "./components/Bullet";
+import EnemyBullet from "./components/EnemyBullet";
+import PlayerBullet from "./components/PlayerBullet";
 import { Enemy } from "./components/Enemy";
 
 import { configureBullet } from "./lib/configure-bullet";
@@ -17,55 +18,91 @@ const Physics = (entities, { dispatch, events, time }) => {
 
   const shootBullet = (
     world,
+    from,
     size,
     bulletPosition,
     bulletVelocity,
-    bulletAngle,
-    from
+    bulletAngle
   ) => {
     let bulletLabel = `Bullet${from}${++bulletIds}`;
-    const bullet = Matter.Bodies.rectangle(
-      bulletPosition.x,
-      bulletPosition.y,
+
+    if (from === "Player") {
+      const bullet = Matter.Bodies.rectangle(
+        bulletPosition.x,
+        bulletPosition.y,
+        size.width,
+        size.height,
+        {
+          label: bulletLabel,
+          restitution: 0,
+          friction: 0,
+          frictionAir: 0,
+        }
+      );
+
+      Matter.Composite.add(world, [bullet]);
+
+      entities[bulletLabel] = {
+        body: bullet,
+        bulletPosition,
+        size,
+        bulletAngle,
+        from,
+        renderer: <PlayerBullet />,
+      };
+
+      Matter.Body.setVelocity(bullet, bulletVelocity);
+    }
+
+    if (from === "Enemy") {
+      const bullet = Matter.Bodies.circle(
+        bulletPosition.x,
+        bulletPosition.y,
+        size.radius,
+        {
+          label: bulletLabel,
+          restitution: 0,
+          friction: 0,
+          frictionAir: 0,
+        }
+      );
+
+      Matter.Composite.add(world, [bullet]);
+
+      entities[bulletLabel] = {
+        body: bullet,
+        bulletPosition,
+        radius: size.radius,
+        from,
+        renderer: <EnemyBullet />,
+      };
+
+      Matter.Body.setVelocity(bullet, bulletVelocity);
+    }
+  };
+
+  const spawnEnemy = (world, pos, size) => {
+    let enemyLabel = `Enemy${++enemyIds}`;
+    const enemy = Matter.Bodies.rectangle(
+      pos.x,
+      pos.y,
       size.width,
       size.height,
       {
-        label: bulletLabel,
+        label: enemyLabel,
         restitution: 0,
         friction: 0,
         frictionAir: 0,
       }
     );
 
-    Matter.Composite.add(world, [bullet]);
-
-    entities[bulletLabel] = {
-      body: bullet,
-      bulletPosition,
-      size,
-      bulletAngle,
-      renderer: <Bullet />,
-    };
-
-    Matter.Body.setVelocity(bullet, bulletVelocity);
-  };
-
-  const spawnEnemy = (world, color, pos, radius) => {
-    let enemyLabel = `Enemy${++enemyIds}`;
-    const enemy = Matter.Bodies.circle(pos.x, pos.y, radius, {
-      label: enemyLabel,
-      restitution: 0,
-      friction: 0,
-      frictionAir: 0,
-    });
-
     Matter.Composite.add(world, [enemy]);
 
     entities[enemyLabel] = {
       body: enemy,
-      color,
       pos,
-      radius,
+      size,
+      animOptions: { animType: "moving" },
       renderer: <Enemy />,
     };
     Matter.Body.setVelocity(entities[enemyLabel].body, {
@@ -118,11 +155,11 @@ const Physics = (entities, { dispatch, events, time }) => {
 
         shootBullet(
           engine.world,
+          "Player",
           { width: 6, height: 15 },
           bulletPosition,
           bulletVelocity,
-          bulletAngle,
-          "Player"
+          bulletAngle
         );
       }
     }
@@ -144,44 +181,31 @@ const Physics = (entities, { dispatch, events, time }) => {
 
       spawnEnemy(
         engine.world,
-        "red",
         {
           x: randomX,
           y: randomY,
         },
-        15
+        { width: 30, height: 30 }
       );
 
       isSpawningEnemy = false;
     }
-
-    // let randomX =
-    //   100 + Math.floor(Math.random() * (CONSTANTS.WINDOW_WIDTH - 150));
-    // let randomY = 100 + Math.floor(Math.random() * 350);
-
-    // if (
-    //   Math.abs(randomX - entities.Player.body.position.x) < 50 ||
-    //   Math.abs(randomY - entities.Player.body.position.y) < 50
-    // ) {
-    //   return entities;
-    // }
   }
 
   if (time.current % 1000 < 10) {
     for (let entityKey in entities) {
       if (entityKey.startsWith("Enemy")) {
-        const { bulletPosition, bulletVelocity, bulletAngle } = configureBullet(
+        const { bulletPosition, bulletVelocity } = configureBullet(
           entities[entityKey].body.position,
           "Enemy"
         );
 
         shootBullet(
           engine.world,
-          { width: 6, height: 15 },
+          "Enemy",
+          { radius: 8 },
           bulletPosition,
-          bulletVelocity,
-          bulletAngle,
-          "Enemy"
+          bulletVelocity
         );
       }
     }
@@ -196,13 +220,22 @@ const Physics = (entities, { dispatch, events, time }) => {
       (objALabel.startsWith("BulletPlayer") && objBLabel.startsWith("Enemy")) ||
       (objALabel.startsWith("Enemy") && objBLabel.startsWith("BulletPlayer"))
     ) {
-      Matter.Composite.remove(engine.world, [pairs[0].bodyA, pairs[0].bodyB]);
-      delete entities[objALabel];
-      delete entities[objBLabel];
-
       if (!currentCollisionId.includes(pairs[0].id)) {
+        Matter.Composite.remove(engine.world, [pairs[0].bodyA, pairs[0].bodyB]);
+
+        entities[
+          objALabel.startsWith("Enemy") ? objALabel : objBLabel
+        ].animOptions.animType = "explode";
+
         dispatch({ type: "score" });
         currentCollisionId.push(pairs[0].id);
+
+        delete entities[objALabel.startsWith("Enemy") ? objBLabel : objALabel];
+        setTimeout(() => {
+          delete entities[
+            objALabel.startsWith("Enemy") ? objALabel : objALabel
+          ];
+        }, 500);
       }
     }
 
@@ -244,16 +277,25 @@ const Physics = (entities, { dispatch, events, time }) => {
       (objALabel.startsWith("Enemy") && objBLabel.startsWith("Player"))
     ) {
       if (!currentCollisionId.includes(pairs[0].id)) {
-        playerHit();
-
-        dispatch({ type: "crash" });
-        currentCollisionId.push(pairs[0].id);
-
         Matter.Composite.remove(
           engine.world,
           objALabel.startsWith("Enemy") ? pairs[0].bodyA : pairs[0].bodyB
         );
-        delete entities[objALabel.startsWith("Enemy") ? objALabel : objBLabel];
+
+        entities[
+          objALabel.startsWith("Enemy") ? objALabel : objBLabel
+        ].animOptions.animType = "explode";
+
+        playerHit();
+
+        setTimeout(() => {
+          delete entities[
+            objALabel.startsWith("Enemy") ? objALabel : objBLabel
+          ];
+        }, 500);
+
+        dispatch({ type: "crash" });
+        currentCollisionId.push(pairs[0].id);
       }
     }
 
