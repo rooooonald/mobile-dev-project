@@ -3,8 +3,19 @@ import { TouchableOpacity, Text, View, ImageBackground } from "react-native";
 
 import { globalStyles } from "../../styles/global-styles";
 import gameOverScreenBg from "../../assets/game-over-bg.png";
+import SpriteSheet from "rn-sprite-sheet";
+import CONSTANTS from "../../Constants";
 
 export default function GameOverScreen({ score, highestScore, onRestartGame }) {
+  
+  let startAnimate = (type) => {
+    gameover.play({
+      type: type,
+      fps: 10,
+      loop: true,
+    });
+  }
+
   return (
     <View style={globalStyles.fullScreen}>
       <ImageBackground
@@ -23,6 +34,7 @@ export default function GameOverScreen({ score, highestScore, onRestartGame }) {
       >
         GAME OVER
       </Text>
+
       <Text
         style={{
           fontWeight: "bold",
@@ -58,7 +70,36 @@ export default function GameOverScreen({ score, highestScore, onRestartGame }) {
         <Text style={{ fontWeight: "bold", color: "white", fontSize: 10 }}>
           RESTART GAME
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity>      
+      
+      <View
+        style={{
+          position: 'absolute',
+          top: CONSTANTS.WINDOW_HEIGHT / 2, 
+          left: CONSTANTS.WINDOW_WIDTH / 2, 
+        }}>
+        <SpriteSheet
+          ref={(ref) => (gameover = ref)}
+          source={require('../../assets/game-elements/GameOverScreen.png')}
+          columns={6}
+          rows={22} 
+          //width={50} // Width of each sprite
+          height={50}
+          onLoad={() => startAnimate('appear')}
+          animations={{ 
+            appear: (() => {
+              const animationFrames = [];
+              for (let i = 0; i <= 21; i++) {
+                if (i % 2 === 0) {
+                  animationFrames.push(i);
+                }
+              }
+              return animationFrames;
+            })()
+          }}
+        />      
+      </View>
+
     </View>
   );
 }

@@ -4,6 +4,7 @@ import { TouchableOpacity, Text, View, ImageBackground, TouchableWithoutFeedback
 import { globalStyles } from "../../styles/global-styles";
 import successScreenBg from "../../assets/success-bg.jpg";
 import SpriteSheet from "rn-sprite-sheet";
+import CONSTANTS from "../../Constants";
 
 export default function SuccessScreen({ onRestartGame }) {
 
@@ -11,7 +12,12 @@ export default function SuccessScreen({ onRestartGame }) {
     //let winGuy = null;
     winGuy.play({
       type: type,
-      fps: 8,
+      fps: 10,
+      loop: true,
+    });
+    medal.play({
+      type:type,
+      fps:10,
       loop: true,
     });
   }
@@ -24,37 +30,6 @@ export default function SuccessScreen({ onRestartGame }) {
         style={globalStyles.imageBackground}
       />
 
-      <View
-        style={{
-          borderWidth: 1,
-          borderColor: 'white',
-          borderStyle: 'solid',
-          position: 'absolute',
-        }}>
-        <SpriteSheet
-          ref={(ref) => (winGuy = ref)}
-          source={require('../../assets/game-elements/winGuy.png')}
-          columns={11}
-          rows={1} 
-          //width={50} // Width of each sprite
-          height={150}
-          frameHeight={150}
-          frameWidth={40} 
-          offsetX={28}
-          onLoad={() => startAnimate('appear')}
-          animations={{ 
-            appear: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 
-          }}
-        />      
-        <TouchableWithoutFeedback
-          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-        >
-          <View
-            style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-          />
-        </TouchableWithoutFeedback>
-      </View>
-
       <Text
         style={{
           fontWeight: "bold",
@@ -66,8 +41,6 @@ export default function SuccessScreen({ onRestartGame }) {
       >
         You Win!
       </Text>
-      
-
 
       <TouchableOpacity
         style={{
@@ -83,6 +56,53 @@ export default function SuccessScreen({ onRestartGame }) {
           RESTART GAME
         </Text>
       </TouchableOpacity>
+
+      <View
+        style={{
+          position: 'absolute',
+          top: CONSTANTS.WINDOW_HEIGHT / 2 + 200, 
+          left: CONSTANTS.WINDOW_WIDTH / 2 - 160, 
+        }}>
+        <SpriteSheet
+          ref={(ref) => (winGuy = ref)}
+          source={require('../../assets/game-elements/winGuy.png')}
+          columns={11}
+          rows={1} 
+          //width={50} // Width of each sprite
+          height={150}
+          frameHeight={150}
+          frameWidth={40} 
+          offsetX={0}
+          onLoad={() => startAnimate('appear')}
+          animations={{ 
+            appear: [2, 3, 4, 5, 6, 7, 8, 9, 10], 
+          }}
+        />      
+      </View>
+
+      <View
+        style={{
+          position: 'absolute',
+          top: CONSTANTS.WINDOW_HEIGHT / 2 + 200, 
+          left: CONSTANTS.WINDOW_WIDTH / 2 , 
+        }}>
+        <SpriteSheet
+          ref={(ref) => (medal = ref)}
+          source={require('../../assets/game-elements/achievements.png')}
+          columns={8}
+          rows={9} 
+          //width={50} // Width of each sprite
+          height={150}
+          frameHeight={150}
+          frameWidth={40} 
+          offsetX={0}
+          onLoad={() => startAnimate('appear')}
+          animations={{ 
+            appear: [0, 1, 2, 3], 
+          }}
+        />      
+      </View>    
+
     </View>
   );
 }
