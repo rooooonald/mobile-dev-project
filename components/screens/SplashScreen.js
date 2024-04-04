@@ -7,6 +7,8 @@ import ExplodingTank from "../ui/ExplodingTank";
 
 import { globalStyles } from "../../styles/global-styles";
 import successScreenBg from "../../assets/backgrounds/game-bg.webp";
+import alignImg from "../../assets/screen-elements/alien.webp";
+import dangerSignImg from "../../assets/screen-elements/danger.webp";
 
 export default function SplashScreen({ onHide }) {
   const opacityPage = useRef(new Animated.Value(1)).current; // This ref object's current property is initialized as the given argument and persists throughout the component lifecycle.
@@ -74,14 +76,10 @@ export default function SplashScreen({ onHide }) {
 
       <Animated.Image
         style={{
-          position: "absolute",
-          top: 200,
-          justifyContent: "center",
-          alignItems: "center",
+          ...styles.dangerSignContainer,
           opacity: opacityDangerSign,
-          transform: [{ rotate: "65deg" }],
         }}
-        source={require("../../assets/screen-elements/danger.webp")}
+        source={dangerSignImg}
       />
       <Animated.Image
         style={{
@@ -90,7 +88,7 @@ export default function SplashScreen({ onHide }) {
           top: 200,
           left: CONSTANTS.WINDOW_WIDTH / 2 - 50,
         }}
-        source={require("../../assets/screen-elements/alien.webp")}
+        source={alignImg}
       />
       <Animated.Image
         style={{
@@ -99,7 +97,7 @@ export default function SplashScreen({ onHide }) {
           top: 400,
           left: CONSTANTS.WINDOW_WIDTH / 2 + 50,
         }}
-        source={require("../../assets/screen-elements/alien.webp")}
+        source={alignImg}
       />
       <Animated.Image
         style={{
@@ -108,28 +106,19 @@ export default function SplashScreen({ onHide }) {
           top: 600,
           left: CONSTANTS.WINDOW_WIDTH / 2 - 50,
         }}
-        source={require("../../assets/screen-elements/alien.webp")}
+        source={alignImg}
       />
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  dangerTextContainer: {
-    width: CONSTANTS.WINDOW_WIDTH * 2,
-    height: 100,
+  dangerSignContainer: {
     position: "absolute",
-    top: 300,
+    top: 200,
     justifyContent: "center",
     alignItems: "center",
-
-    transform: [{ rotate: "20deg" }],
-    backgroundColor: "#B20600",
-  },
-  dangerText: {
-    color: "white",
-    fontSize: 60,
-    fontWeight: "700",
+    transform: [{ rotate: "65deg" }],
   },
   alien: {
     width: 50,
