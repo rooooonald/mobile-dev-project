@@ -31,11 +31,11 @@ export default function PlayerInfo({ score, lifeCount }) {
   return (
     <View style={styles.playerInfo}>
       <View style={styles.health}>
-        <Text>Life</Text>
+        <Text>HP</Text>
         <View style={styles.healthBar}>{healthBar}</View>
       </View>
       <View style={styles.score}>
-        <Text>Score</Text>
+        <Text>SCORE</Text>
         <Text style={{ fontSize: 24 }}>{score}</Text>
       </View>
     </View>

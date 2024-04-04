@@ -1,8 +1,14 @@
 import React from "react";
-import { TouchableOpacity, Text, View, ImageBackground } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  ImageBackground,
+  StyleSheet,
+} from "react-native";
 
 import { globalStyles } from "../../styles/global-styles";
-import gameOverScreenBg from "../../assets/game-over-bg.png";
+import gameOverScreenBg from "../../assets/backgrounds/game-over-bg.webp";
 
 export default function GameOverScreen({ score, highestScore, onRestartGame }) {
   return (
@@ -10,7 +16,7 @@ export default function GameOverScreen({ score, highestScore, onRestartGame }) {
       <ImageBackground
         source={gameOverScreenBg}
         resizeMode="cover"
-        style={globalStyles.imageBackground}
+        style={[globalStyles.imageBackground, { opacity: 0.5 }]}
       />
       <Text
         style={{
@@ -46,19 +52,17 @@ export default function GameOverScreen({ score, highestScore, onRestartGame }) {
         HIGHEST SCORE: {highestScore}
       </Text>
       <TouchableOpacity
-        style={{
-          backgroundColor: "black",
-          paddingHorizontal: 30,
-          paddingVertical: 10,
-          position: "absolute",
-          top: 500,
-        }}
+        style={[globalStyles.button, styles.button]}
         onPress={onRestartGame}
       >
-        <Text style={{ fontWeight: "bold", color: "white", fontSize: 10 }}>
-          RESTART GAME
-        </Text>
+        <Text style={globalStyles.buttonText}>RESTART GAME</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    top: 500,
+  },
+});

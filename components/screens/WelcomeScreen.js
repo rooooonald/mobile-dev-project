@@ -1,14 +1,16 @@
 import React from "react";
 import {
   TouchableOpacity,
-  StyleSheet,
   Text,
   View,
   ImageBackground,
+  Image,
+  StyleSheet,
 } from "react-native";
 
 import { globalStyles } from "../../styles/global-styles";
-import welcomeScreenBg from "../../assets/welcome-bg.png";
+import welcomeScreenBg from "../../assets/backgrounds/welcome-bg.webp";
+import logo from "../../assets/logo.png";
 
 export default function WelcomeScreen({ onStartGame }) {
   return (
@@ -18,31 +20,27 @@ export default function WelcomeScreen({ onStartGame }) {
         resizeMode="cover"
         style={globalStyles.imageBackground}
       />
-      <Text
+      <Image
+        source={logo}
         style={{
-          fontWeight: "bold",
-          color: "white",
-          fontSize: 45,
+          width: 200,
+          height: 200,
           position: "absolute",
           top: 200,
         }}
-      >
-        TANK ATTACK
-      </Text>
+      />
       <TouchableOpacity
-        style={{
-          backgroundColor: "black",
-          paddingHorizontal: 30,
-          paddingVertical: 10,
-          position: "absolute",
-          top: 500,
-        }}
+        style={[globalStyles.button, styles.button]}
         onPress={onStartGame}
       >
-        <Text style={{ fontWeight: "bold", color: "white", fontSize: 10 }}>
-          START GAME
-        </Text>
+        <Text style={globalStyles.buttonText}>START GAME</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    top: 500,
+  },
+});

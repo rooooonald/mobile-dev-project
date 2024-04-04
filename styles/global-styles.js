@@ -11,7 +11,6 @@ export const globalStyles = StyleSheet.create({
   gameContainer: {
     height: "100%",
     width: "100%",
-    backgroundColor: "#fff",
   },
   fullScreen: {
     flex: 1,
@@ -28,5 +27,20 @@ export const globalStyles = StyleSheet.create({
   imageBackground: {
     width: "100%",
     height: "100%",
+    zIndex: -1,
+  },
+  button: {
+    width: 200,
+    height: 50,
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: 10,
+  },
+  buttonText: {
+    color: "black",
+    fontWeight: "700",
+    fontSize: 20,
   },
 });

@@ -14,7 +14,8 @@ export default (gameWorld) => {
   return {
     physics: { engine, world },
 
-    // Player
+    // PLAYER
+
     Player: Player(
       world,
       "blue",
@@ -26,7 +27,7 @@ export default (gameWorld) => {
       }
     ),
 
-    // Boundaries
+    // BOUNDARIES
 
     BoundaryLeft: Boundary(
       world,

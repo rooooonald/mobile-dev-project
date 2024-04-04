@@ -16,6 +16,8 @@ const Physics = (entities, { dispatch, events, time }) => {
 
   entities.Player.body.inverseInertia = 0; // Setting inverseInertia to zero effectively means that the body has infinite resistance to rotation
 
+  // BULLET SHOOTING FUNCTION
+
   const shootBullet = (
     world,
     from,
@@ -25,6 +27,12 @@ const Physics = (entities, { dispatch, events, time }) => {
     bulletAngle
   ) => {
     let bulletLabel = `Bullet${from}${++bulletIds}`;
+    let options = {
+      label: bulletLabel,
+      restitution: 0,
+      friction: 0,
+      frictionAir: 0,
+    };
 
     if (from === "Player") {
       const bullet = Matter.Bodies.rectangle(
@@ -32,12 +40,7 @@ const Physics = (entities, { dispatch, events, time }) => {
         bulletPosition.y,
         size.width,
         size.height,
-        {
-          label: bulletLabel,
-          restitution: 0,
-          friction: 0,
-          frictionAir: 0,
-        }
+        options
       );
 
       Matter.Composite.add(world, [bullet]);
@@ -47,7 +50,6 @@ const Physics = (entities, { dispatch, events, time }) => {
         bulletPosition,
         size,
         bulletAngle,
-        from,
         renderer: <PlayerBullet />,
       };
 
@@ -59,12 +61,7 @@ const Physics = (entities, { dispatch, events, time }) => {
         bulletPosition.x,
         bulletPosition.y,
         size.radius,
-        {
-          label: bulletLabel,
-          restitution: 0,
-          friction: 0,
-          frictionAir: 0,
-        }
+        options
       );
 
       Matter.Composite.add(world, [bullet]);
@@ -73,13 +70,14 @@ const Physics = (entities, { dispatch, events, time }) => {
         body: bullet,
         bulletPosition,
         radius: size.radius,
-        from,
         renderer: <EnemyBullet />,
       };
 
       Matter.Body.setVelocity(bullet, bulletVelocity);
     }
   };
+
+  // ENEMY SPAWNING FUNCTION
 
   const spawnEnemy = (world, pos, size) => {
     let enemyLabel = `Enemy${++enemyIds}`;
@@ -111,6 +109,8 @@ const Physics = (entities, { dispatch, events, time }) => {
     });
   };
 
+  // TRIGGER PLAYER EXPLODE ANIMATION AFTER PLAYER IS HIT
+
   let timer;
   const playerHit = () => {
     Sleeping.set(entities.Player.body, true);
@@ -126,7 +126,8 @@ const Physics = (entities, { dispatch, events, time }) => {
     }, 500);
   };
 
-  /*************TOUCH CONTROLS WITH ARROW KEY ****************/
+  // TOUCH CONTROLS WITH ARROW KEY
+
   if (events.length) {
     for (let i = 0; i < events.length; i++) {
       if (events[i].type === "move-up") {
@@ -165,6 +166,8 @@ const Physics = (entities, { dispatch, events, time }) => {
     }
   }
 
+  // ENEMY SPAWNING
+
   let isSpawningEnemy = false;
   if (time.current % 2000 < 10) {
     if (!isSpawningEnemy) {
@@ -192,6 +195,8 @@ const Physics = (entities, { dispatch, events, time }) => {
     }
   }
 
+  // ENEMY SHOOTING BULLETS
+
   if (time.current % 1000 < 10) {
     for (let entityKey in entities) {
       if (entityKey.startsWith("Enemy")) {
@@ -210,6 +215,8 @@ const Physics = (entities, { dispatch, events, time }) => {
       }
     }
   }
+
+  // COLLISIONS
 
   Matter.Events.on(engine, "collisionStart", (event) => {
     var pairs = event.pairs;
@@ -380,6 +387,8 @@ const Physics = (entities, { dispatch, events, time }) => {
       delete entities[objBLabel];
     }
   });
+
+  // CLEAR COLLISION AFTER COLLISION ENDS
 
   Matter.Events.on(engine, "collisionEnd", (event) => {
     var pairs = event.pairs;
