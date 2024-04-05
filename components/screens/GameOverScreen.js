@@ -55,7 +55,7 @@ export default function GameOverScreen({ score, highestScore, onRestartGame }) {
         style={[globalStyles.button, styles.button]}
         onPress={onRestartGame}
       >
-        <Text style={globalStyles.buttonText}>RESTART GAME</Text>
+        <Text style={globalStyles.buttonText}>RESTART</Text>
       </TouchableOpacity>
     </View>
   );

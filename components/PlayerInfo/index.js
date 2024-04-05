@@ -31,12 +31,12 @@ export default function PlayerInfo({ score, lifeCount }) {
   return (
     <View style={styles.playerInfo}>
       <View style={styles.health}>
-        <Text>HP</Text>
+        <Text style={styles.text}>HP</Text>
         <View style={styles.healthBar}>{healthBar}</View>
       </View>
       <View style={styles.score}>
-        <Text>SCORE</Text>
-        <Text style={{ fontSize: 24 }}>{score}</Text>
+        <Text style={styles.text}>SCORE</Text>
+        <Text style={{ ...styles.text, fontSize: 24 }}>{score}</Text>
       </View>
     </View>
   );
@@ -65,5 +65,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "flex-end",
     gap: 10,
+  },
+  text: {
+    color: "white",
   },
 });

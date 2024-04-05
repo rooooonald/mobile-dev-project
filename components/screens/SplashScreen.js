@@ -37,17 +37,14 @@ export default function SplashScreen({ onHide }) {
       useNativeDriver: true,
     }).start();
 
-    const timer = setTimeout(() => {
-      Animated.timing(opacityPage, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start(() => {
-        onHide && onHide(); // Callback to notify that the splash screen has been hidden
-      });
-    }, 4000);
-
-    return () => clearTimeout(timer);
+    Animated.timing(opacityPage, {
+      toValue: 0,
+      delay: 4000,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start(() => {
+      onHide && onHide(); // Callback to notify that the splash screen has been hidden
+    });
   }, []);
 
   return (

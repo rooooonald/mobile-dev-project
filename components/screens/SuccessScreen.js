@@ -9,31 +9,41 @@ import {
   StyleSheet,
 } from "react-native";
 
+import CONSTANTS from "../../Constants";
+
 import { globalStyles } from "../../styles/global-styles";
 import successScreenBg from "../../assets/backgrounds/success-bg.webp";
-
-let startAnimate = (type) => {
-  successGuy.play({
-    type: type,
-    fps: 8,
-    loop: true,
-  });
-};
 
 export default function SuccessScreen({ onRestartGame }) {
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }, 500);
-
-    return () => clearTimeout(timer);
+    Animated.timing(opacity, {
+      toValue: 1,
+      delay: 500,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
   }, []);
+
+  let successGuy = null;
+  let medal = null;
+
+  let startAnimateGuy = (type) => {
+    successGuy.play({
+      type: type,
+      fps: 8,
+      loop: true,
+    });
+  };
+
+  let startAnimateMedal = (type) => {
+    medal.play({
+      type: type,
+      fps: 10,
+      loop: true,
+    });
+  };
 
   return (
     <View style={globalStyles.fullScreen}>
@@ -49,7 +59,7 @@ export default function SuccessScreen({ onRestartGame }) {
           color: "white",
           fontSize: 45,
           position: "absolute",
-          top: 200,
+          top: CONSTANTS.WINDOW_HEIGHT / 4,
         }}
       >
         YOU WIN
@@ -58,6 +68,8 @@ export default function SuccessScreen({ onRestartGame }) {
       <Animated.View
         style={{
           position: "absolute",
+          top: CONSTANTS.WINDOW_HEIGHT / 3,
+          left: CONSTANTS.WINDOW_WIDTH / 2 - 125,
           opacity,
         }}
       >
@@ -66,10 +78,30 @@ export default function SuccessScreen({ onRestartGame }) {
           source={require("../../assets/screen-elements/success-guy.png")}
           columns={11}
           rows={1}
-          height={50}
-          onLoad={() => startAnimate("appear")}
+          height={150}
+          onLoad={() => startAnimateGuy("appear")}
           animations={{
             appear: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+          }}
+        />
+      </Animated.View>
+      <Animated.View
+        style={{
+          position: "absolute",
+          top: CONSTANTS.WINDOW_HEIGHT / 3,
+          left: CONSTANTS.WINDOW_WIDTH / 2,
+          opacity,
+        }}
+      >
+        <SpriteSheet
+          ref={(ref) => (medal = ref)}
+          source={require("../../assets/screen-elements/achievements.png")}
+          columns={8}
+          rows={9}
+          height={150}
+          onLoad={() => startAnimateMedal("appear")}
+          animations={{
+            appear: [0, 1, 2, 3],
           }}
         />
       </Animated.View>
@@ -86,6 +118,6 @@ export default function SuccessScreen({ onRestartGame }) {
 
 const styles = StyleSheet.create({
   button: {
-    top: 450,
+    top: (CONSTANTS.WINDOW_HEIGHT / 3) * 2,
   },
 });
