@@ -48,7 +48,7 @@ export default function App() {
     setIsRunning(false);
     setIsGameOver(true);
     score > highestScore && setHighestScore(score);
-    gameEngine.swap(entities()); // Remove all the previous added entities like bullets
+    gameEngine.swap(entities()); // Remove all the previously added entities like bullets
   };
 
   const gameRestartHandler = () => {

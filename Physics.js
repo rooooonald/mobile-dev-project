@@ -240,7 +240,7 @@ const Physics = (entities, { dispatch, events, time }) => {
         delete entities[objALabel.startsWith("Enemy") ? objBLabel : objALabel];
         setTimeout(() => {
           delete entities[
-            objALabel.startsWith("Enemy") ? objALabel : objALabel
+            objALabel.startsWith("Enemy") ? objALabel : objBLabel
           ];
         }, 500);
       }
