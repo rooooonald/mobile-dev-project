@@ -1,11 +1,5 @@
-import React, { useEffect, useState } from "react";
-import {
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  ImageBackground,
-  Image,
-} from "react-native";
+import React from "react";
+import { TouchableOpacity, StyleSheet, Image } from "react-native";
 
 import buttonArrowImg from "../../../assets/ui/buttonArrow.png";
 import buttonShotImg from "../../../assets/ui/buttonShot.png";

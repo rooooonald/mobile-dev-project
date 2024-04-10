@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native";
+import { ImageBackground, SafeAreaView, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
 import { GameEngine } from "react-native-game-engine";
 import entities from "./entities";
 import Physics from "./Physics";
 
+import SplashScreen from "./components/screens/SplashScreen";
 import WelcomeScreen from "./components/screens/WelcomeScreen";
 import GameOverScreen from "./components/screens/GameOverScreen";
 import SuccessScreen from "./components/screens/SuccessScreen";
@@ -13,6 +14,7 @@ import ControlPanel from "./components/ControlPanel";
 import PlayerInfo from "./components/PlayerInfo";
 
 import { globalStyles } from "./styles/global-styles";
+import gameBg from "./assets/backgrounds/game-bg.webp";
 
 export default function App() {
   const [gameEngine, setGameEngine] = useState(null);
@@ -24,6 +26,8 @@ export default function App() {
   const [highestScore, setHighestScore] = useState(0);
   const [lifeCount, setLifeCount] = useState(3);
   const [lastDirection, setLastDirection] = useState(0);
+
+  const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
 
   useEffect(() => {
     if (lifeCount <= 0) {
@@ -56,10 +60,20 @@ export default function App() {
     setScore(0);
   };
 
+  const hideSplashScreenHandler = () => {
+    setIsSplashScreenVisible(false);
+  };
+
   const isWelcome = !isRunning && !isGameOver && !isSuccess;
 
   return (
     <SafeAreaView style={globalStyles.container}>
+      <ImageBackground
+        source={gameBg}
+        resizeMode="cover"
+        style={styles.gameBg}
+      />
+      <StatusBar style="auto" hidden={true} />
       <GameEngine
         ref={(ref) => {
           setGameEngine(ref);
@@ -82,9 +96,11 @@ export default function App() {
           }
         }}
         style={globalStyles.gameContainer}
-      >
-        <StatusBar style="auto" hidden={true} />
-      </GameEngine>
+      ></GameEngine>
+
+      {isSplashScreenVisible && (
+        <SplashScreen onHide={hideSplashScreenHandler} />
+      )}
 
       {isWelcome && <WelcomeScreen onStartGame={() => setIsRunning(true)} />}
 
@@ -109,3 +125,15 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  gameBg: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 100,
+    left: 0,
+    opacity: 0.5,
+    zIndex: -1,
+  },
+});

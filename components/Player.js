@@ -1,8 +1,7 @@
+import { useEffect } from "react";
 import { View } from "react-native";
 import Matter from "matter-js";
-
 import SpriteSheet from "rn-sprite-sheet";
-import { useEffect } from "react";
 
 export const Player = (props) => {
   const width = props.size.width;

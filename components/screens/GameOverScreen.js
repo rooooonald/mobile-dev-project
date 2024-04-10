@@ -1,10 +1,14 @@
 import React from "react";
-import { TouchableOpacity, Text, View, ImageBackground } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  ImageBackground,
+  StyleSheet,
+} from "react-native";
 
 import { globalStyles } from "../../styles/global-styles";
-import gameOverScreenBg from "../../assets/game-over-bg.png";
-import SpriteSheet from "rn-sprite-sheet";
-import CONSTANTS from "../../Constants";
+import gameOverScreenBg from "../../assets/backgrounds/game-over-bg.webp";
 
 export default function GameOverScreen({ score, highestScore, onRestartGame }) {
   
@@ -21,7 +25,7 @@ export default function GameOverScreen({ score, highestScore, onRestartGame }) {
       <ImageBackground
         source={gameOverScreenBg}
         resizeMode="cover"
-        style={globalStyles.imageBackground}
+        style={[globalStyles.imageBackground, { opacity: 0.5 }]}
       />
       <Text
         style={{
@@ -58,48 +62,17 @@ export default function GameOverScreen({ score, highestScore, onRestartGame }) {
         HIGHEST SCORE: {highestScore}
       </Text>
       <TouchableOpacity
-        style={{
-          backgroundColor: "black",
-          paddingHorizontal: 30,
-          paddingVertical: 10,
-          position: "absolute",
-          top: 500,
-        }}
+        style={[globalStyles.button, styles.button]}
         onPress={onRestartGame}
       >
-        <Text style={{ fontWeight: "bold", color: "white", fontSize: 10 }}>
-          RESTART GAME
-        </Text>
-      </TouchableOpacity>      
-      
-      <View
-        style={{
-          position: 'absolute',
-          top: CONSTANTS.WINDOW_HEIGHT / 2, 
-          left: CONSTANTS.WINDOW_WIDTH / 2, 
-        }}>
-        <SpriteSheet
-          ref={(ref) => (gameover = ref)}
-          source={require('../../assets/game-elements/GameOverScreen.png')}
-          columns={6}
-          rows={22} 
-          //width={50} // Width of each sprite
-          height={50}
-          onLoad={() => startAnimate('appear')}
-          animations={{ 
-            appear: (() => {
-              const animationFrames = [];
-              for (let i = 0; i <= 21; i++) {
-                if (i % 2 === 0) {
-                  animationFrames.push(i);
-                }
-              }
-              return animationFrames;
-            })()
-          }}
-        />      
-      </View>
-
+        <Text style={globalStyles.buttonText}>RESTART</Text>
+      </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    top: 500,
+  },
+});

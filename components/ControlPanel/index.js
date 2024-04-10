@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 
 import ControlButton from "../ui/buttons/ControlButton";

@@ -1,6 +1,6 @@
 import Matter from "matter-js";
 import React from "react";
-import { Dimensions, ImageBackground, View } from "react-native";
+import { ImageBackground, View } from "react-native";
 
 import leftBoundaryImg from "../assets/boundaries/left.png";
 import rightBoundaryImg from "../assets/boundaries/right.png";

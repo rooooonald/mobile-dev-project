@@ -1,35 +1,55 @@
+import { useEffect } from "react";
 import { View } from "react-native";
 
+import SpriteSheet from "rn-sprite-sheet";
+
 export const Enemy = (props) => {
-  const width = props.radius * 2;
-  const height = props.radius * 2;
+  const width = props.size.width;
+  const height = props.size.height;
 
   const xPos = props.body.position.x - width / 2;
   const yPos = props.body.position.y - height / 2;
 
+  let enemy = null;
+
+  let initiateEnemy = () => {
+    enemy.play({
+      type: props.animOptions.animType,
+      loop: true,
+    });
+  };
+
+  useEffect(() => {
+    enemy.play({
+      type: props.animOptions.animType,
+      loop: false,
+      fps: 24,
+    });
+  }, [props.animOptions.animType]);
+
   return (
     <View
       style={{
-        width,
-        height,
-        borderRadius: props.radius,
+        width: props.size.width,
+        height: props.size.height,
         left: xPos,
         top: yPos,
-        backgroundColor: props.color,
         position: "absolute",
       }}
-    ></View>
+    >
+      <SpriteSheet
+        ref={(ref) => (enemy = ref)}
+        source={require("../assets/game-elements/enemy.png")}
+        columns={5}
+        rows={2}
+        height={height}
+        onLoad={() => initiateEnemy()}
+        imageStyle={{ marginTop: 0 }}
+        animations={{
+          explode: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+          moving: [0],
+        }}
+      />
+    </View>
   );
 };
-
-// export default (world, color, pos, size, extraOptions) => {
-//   const enemy = Matter.Bodies.circle(pos.x, pos.y, size.width, size.height, {
-//     label: extraOptions.label,
-//     friction: 0,
-//     frictionAir: 0,
-//     restitution: 0,
-//     isStatic: extraOptions.isStatic || false,
-//   });
-//   Matter.World.add(world, enemy);
-//   return { body: enemy, color, pos, size, extraOptions, renderer: <Enemy /> };
-// };
